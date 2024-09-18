@@ -1,0 +1,42 @@
+.image-container{
+    position: absolute; /* Posiciona el contenedor de imágenes fuera del flujo normal del documento */
+    top: 0; /* Alineado con la parte superior de la página o del contenedor padre */
+    right: 70px; /* Lo desplaza hacia la derecha */
+    width: 700px; /* Ajusta el ancho del contenedor de imágenes */
+    height: 700px; /* Ajusta el alto del contenedor de imágenes */
+    /*border: 2px solid #ccc; /* Bordes opcionales para visualizar el contenedor */
+    z-index: 10; /
+}
+
+.overlay-image{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+img {
+    width: 500px; /* Ancho grande */
+    height: 500px; /* Alto grande */
+    object-fit: contain; /* Ajusta la imagen dentro del contenedor sin distorsión */
+    /*border: 2px solid #ccc; /* Bordes opcionales para ver los contenedores */
+    margin: 10px; /* Espaciado entre las imágenes */
+}
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+.menu {
+    width: 200px;
+}
+
+.menu-item {
+    margin-bottom: 10px;
+}
+
+.menu-item ul {
+    list-style-type: none;
+    padding-left: 20px;
+}

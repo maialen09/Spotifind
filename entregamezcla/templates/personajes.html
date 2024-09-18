@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive List</title>
+    <link rel="stylesheet" href="../static/personajes.css">
+</head>
+<body>
+
+<div class="menu">
+    <div class="menu-item">
+        <details>
+            <summary>Color de cuerpo</summary>
+            <ul>
+                <li><input type="radio" name="body_type" id="amarillo"><label for="amarillo">Amarillo</label></li>
+                <li><input type="radio" name="body_type" id="naranja"><label for="naranja">Naranja</label></li>
+                <li><input type="radio" name="body_type" id="azul"><label for="azul">Azul</label></li>
+                <li><input type="radio" name="body_type" id="verde"><label for="verde">Verde</label></li>
+                <li><input type="radio" name="body_type" id="morado"><label for="morado">Morado</label></li>
+            </ul>
+        </details>
+    </div>
+
+    <div class="menu-item">
+        <details>
+            <summary>Gafas</summary>
+            <ul>
+                <li> <div class="menu-item">
+                    <details>
+                        <summary>Gafas cuadradas</summary>
+                        <ul>
+                            <li><input type="radio" name="gafas"  value="cuadradas" id="azul claro"><label for="azul claro">Azul claro</label></li>
+                            <li><input type="radio" name="gafas" value="cuadradas" id="morado claro"><label for="morado claro">Morado claro</label></li>
+                            <li><input type="radio" name="gafas" value="cuadradas" id="verde claro"><label for="verde claro">Verde claro</label></li>
+                            <li><input type="radio" name="gafas" value="cuadradas" id="rojo"><label for="rojo">Rojo</label></li>
+                        </ul>
+                    </details>
+                </div></li>
+
+                <li>
+                    <div class="menu-item">
+                        <details>
+                            <summary>Gafas redondas</summary>
+                            <ul>
+                                <li><input type="radio" name="gafas" value="redondas" id="rojo"><label for="rojo">Rojo</label></li>
+                                <li><input type="radio" name="gafas" value="redondas" id="naranja claro"><label for="naranja claro">Naranja claro</label></li>
+                                <li><input type="radio" name="gafas" value="redondas" id="aquamarina"><label for="aquamarina">Aquamarina</label></li>
+                                <li><input type="radio" name="gafas" value="redondas" id="morado oscuro"><label for="morado oscuro">Morado oscuro</label></li>
+                            </ul>
+                        </details>
+                    </div>
+                </li>
+
+            </ul>
+        </details>
+    </div>
+
+    <div class="menu-item">
+        <details>
+            <summary>Ojos</summary>
+            <ul>
+                <li><input type="radio" name="ojos" id="negro"><label for="negro">Negro</label></li>
+                <li><input type="radio" name="ojos" id="azul"><label for="azul">Azul</label></li>
+                <li><input type="radio" name="ojos" id="amarillo"><label for="amarillo">Amarillo</label></li>
+                <li><input type="radio" name="ojos" id="verde claro"><label for="verde claro">Verde claro</label></li>
+                <li><input type="radio" name="ojos" id="rosa"><label for="rosa">Rosa</label></li>
+                <li><input type="radio" name="ojos" id="naranja"><label for="naranja">Naranja</label></li>
+                <li><input type="radio" name="ojos" id="rojo"><label for="rojo">Rojo</label></li>
+            </ul>
+            
+        </details>
+    </div>
+
+    <div class="menu-item"></div>
+        <details>
+            <summary>Vestidos</summary>
+            <ul>
+                <li><input type="radio" name="vestidos" id="azul"><label for="azul">Azul</label></li>
+                <li><input type="radio" name="vestidos" id="naranja"><label for="naranja">Naranja</label></li>
+                <li><input type="radio" name="vestidos" id="verde claro"><label for="verde claro">Verde claro</label></li>
+            </ul>
+            
+        </details>
+    </div>
+
+    <div class="menu-item"></div>
+        <details>
+            <summary>Bocas</summary>
+            <ul>
+                <li><input type="radio" name="bocas" id="principal"><label for="principal">Principal</label></li>
+            </ul>
+            
+        </details>
+    </div>
+
+</div>
+
+<div class="image-container">
+    <img  id="color cuerpo-image" src="" alt="Cuerpo" class="overlay-image">
+    <img id="gafas_rectangulares-image" src="" alt="Gafas" class="overlay-image">
+    <img id="gafas_redondas-image" src="" alt="Gafas" class="overlay-image">
+    <img id="ojos-image" src="" alt="Ojos" class="overlay-image">
+    <img id="vestidos-image" src="" alt="Vestidos" class="overlay-image">
+    <img id="bocas-image" src="" alt="Bocas" class="overlay-image">
+</div>
+
+</body>
+<script src="../static/personajes.js"></script>
+</html>

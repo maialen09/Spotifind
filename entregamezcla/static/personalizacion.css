@@ -1,0 +1,33 @@
+body {
+
+    background-color: black;
+}
+
+button{
+
+    background-color: #ebd758;
+}
+
+.gallery {
+
+    text-align: center;
+}
+
+
+h1 {
+    text-align: center;
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: bold;
+    font-size: 40px;
+    color: #ebd758;
+    text-shadow: -1px 0 #414D68, 0 1px  #414D68, 1px 0 #414D68, 0 -1px #414D68, -2px 2px 0 #414D68, 2px 2px #414D68, 1px 1px #414D68, 2px 2px #414D68, 3px 3px #414D68, 4px 4px #414D68, 5px 5px #414D68, 6px 6px #414D68, 7px 7px #414D68, 8px 8px #414D68, 9px 9px #414D68;
+}
+
+.bottom-buttons {
+    margin-top: 20px;
+}
+
+.bottom-buttons button {
+    display: inline-block;
+    margin: 5px;
+}

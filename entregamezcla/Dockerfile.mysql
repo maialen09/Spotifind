@@ -1,0 +1,4 @@
+FROM mysql:8.3.0
+
+# Copiar el script SQL a la carpeta de inicio del contenedor de MySQL
+COPY realdatabase.sql /docker-entrypoint-initdb.d/

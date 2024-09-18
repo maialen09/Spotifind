@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../static/menu.css">
+</head>
+<body>
+
+   <!-- Descomentar esto cuando se tengan dudas de si se esta recibiendo bien la info de escucha del usuario --> 
+
+  <!--{% if track and artist %}
+    <p>Currently playing: <strong>{{ track }}</strong> by <strong>{{ artist }}</strong></p>
+    <p>Usuario loggeado: {{ usuario }}</p>
+    {% else %}
+    <p>No song currently playing</p>
+    {% endif %}
+    <a href="{{ url_for('index') }}">Back to Home</a> -->
+
+    <form id="hidden-form"  >
+        <input type="hidden" id="track" value="{{ track }}">
+        <input type="hidden" id="artist" value="{{ artist }}">
+        <input type="hidden" id="usuario" value="{{ usuario }}">
+        <input type="hidden" id="unico" value="{{ unico }}">
+        
+    </form>
+
+    <form id="personalizacion-form" action="{{ url_for('personalizacion') }}" method="POST">
+        <input type="hidden" name="track" value="{{ track }}">
+        <input type="hidden" name="artist" value="{{ artist }}">
+        <input type="hidden" name="usuario" value="{{ usuario }}">
+        <input type="hidden" name="unico" value="{{ unico }}">
+    </form>
+>
+
+
+    <ul>
+        <li><a href="{{ url_for('mapa')}}" data-text="Mapa"> Mapa</a></li>
+        <!--<li><a href="{{ url_for('personalizacion')}}" data-text="Personalizacion">Personalizacion</a></li>-->
+        <li><a id="personalizacion-link" href="#" data-text="Personalizacion">Personalizacion</a></li>
+        <li><a href="{{ url_for('pagina3')}}" data-text="Usuarios"> Usuarios</a></li>
+        <li><a href="{{ url_for('tiemporeal')}}" data-text="Tiempo Real">Tiempo Real</a></li>
+        <li><a href="{{ url_for('pagina3')}}" data-text="Salir">Salir</a></li>
+        <li><a href="{{ url_for('personajes')}}" data-text="">Personajes</a></li>
+    </ul>
+    
+
+    <script src="../static/menu.js"></script>
+</body>
+</html>

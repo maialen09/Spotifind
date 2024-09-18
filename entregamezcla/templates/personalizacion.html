@@ -1,0 +1,38 @@
+<!-- Este html va a servir para que la persona pueda customizar su avatar -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalización de Personaje</title>
+    <link rel="stylesheet" href="../static/personalizacion.css">
+</head>
+<body>
+    <div class="gallery"> 
+    <h1> PERSONALIZACION </h1>
+
+    <p> Track: {{ track }} </p> 
+    <p> Artist: {{ artist }} </p> 
+    <p> Usuario: {{ usuario }} </p> 
+    <p id="unico-paragraph">Id unico: {{ unico }}</p>
+
+    <button id="prev" class="nav-button">&larr;</button>   
+
+    <a id="character-link" href="https://pokemondb.net/pokedex/naclstack">
+        <img id="character-image" src="https://img.pokemondb.net/sprites/scarlet-violet/normal/naclstack.png" alt="Naclstack"></a>
+    <button id="next" class="nav-button">&rarr;</button> 
+
+    <div class="bottom-buttons">
+        <button id="aleatorio"> aleatorio</button>
+        <button id="guardar"> guardar </button>
+    </div>
+
+    </div>
+    
+
+    <a href="{{ url_for('index') }}">Back to Home</a>
+    
+    <script src="../static/personalizacion.js"></script>
+</body>
+</html>

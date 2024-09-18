@@ -1,0 +1,53 @@
+body {
+    background-color: black;
+}
+
+h1 {
+    text-align: center;
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: bold;
+    font-size: 60px;
+    color: #ebd758;
+    text-shadow: -1px 0 #414D68, 0 1px  #414D68, 1px 0 #414D68, 0 -1px #414D68, -2px 2px 0 #414D68, 2px 2px #414D68, 1px 1px #414D68, 2px 2px #414D68, 3px 3px #414D68, 4px 4px #414D68, 5px 5px #414D68, 6px 6px #414D68, 7px 7px #414D68, 8px 8px #414D68, 9px 9px #414D68;
+}
+form{
+
+    margin-bottom: 20px;
+}
+
+.contenedor {
+    text-align: center;
+    margin-top: 50px;
+}
+
+/* Estilos para los botones */
+.boton {
+    color: #000000;
+    border: 2px solid rgb(255, 238, 2);
+    border-radius: 0px;
+    padding: 18px 36px;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 14px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: inset 0 0 0 0 #fff700;
+    -webkit-transition: ease-out 0.4s;
+    -moz-transition: ease-out 0.4s;
+    transition: ease-out 0.4s;
+    display: inline-block;
+}
+
+/* Estilos para el enlace del segundo botón */
+.contenedor a {
+    text-decoration: none; /* Quita el subrayado del enlace */
+}
+
+/* Estilos para los botones en línea */
+.contenedor .boton {
+    display: inline-block; /* Alinea los botones en línea */
+    margin: 0 10px; /* Espacio entre los botones */
+}
+
+.boton:hover {
+    box-shadow: inset 400px 0 0 0 #fff700;
+}

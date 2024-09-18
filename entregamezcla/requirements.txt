@@ -1,0 +1,13 @@
+flask
+requests
+python-dotenv 
+mysql-connector-python
+faker
+spotipy
+flask-oauthlib
+flask_session
+flask_socketio
+eventlet
+werkzeug==2.0.2
+
+
