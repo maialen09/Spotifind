@@ -317,56 +317,44 @@ def handle_disconnect():
     global imagenes
     imagenes = [imagen for imagen in imagenes if imagen['id'] != session.get('id')]
     emit('update_user_list', list(imagenes), broadcast=True)
-    
+  
+
+@socketio.on('get_user_id')
+def handle_get_user_id():
+    user_id = session.get('id')  # Obtener el ID del usuario desde la sesión
+    emit('receive_user_id', user_id)  # Enviar el ID al cliente
+
+@socketio.on('join_room')
+def handle_join_room(data):
+    room_name = data['room_name']
+    join_room(room_name)
+    emit('system_message', f'{session.get('usuario')} se ha unido a la sala {room_name}', room=room_name)
+
 @socketio.on('send_message')
 def handle_send_message(data):
-    user_id = data['userId']  # ID del destinatario
+    room_name = data['room_name']
     message = data['message']
-    username = session.get('usuario')  # Nombre del remitente
+    username = session.get('usuario')  # Obtiene el nombre del usuario desde la sesión
 
-    # Crear una sala única para el par de usuarios
-    room_name = f"{min(session.get('id'), user_id)}_{max(session.get('id'), user_id)}"
-    emit('mostrarNombre',room_name)
+    # Insertar el mensaje en la base de datos
+    insertar_mensaje(room_name,username,message)
 
+    # Emitir el mensaje a todos en la sala
+    emit('receive_message', {
+        'room_name': room_name,
+        'username': username,
+        'message': message
+    }, room=room_name)
 
-    # Guardar en la base de datos
-    insertar_mensaje(room_name, username, message)
-    
-    # Enviar el mensaje solo al destinatario
-    emit('receive_message', {'userId': session.get('id'), 'username': username, 'message': message}, room=chat_conexions.get(user_id))
+@socketio.on('load_chat_history')
+def handle_load_chat_history(room_name):
+    messages = cargar_mensajes(room_name)
 
-    # Opcional: si quieres reenviar el mensaje al remitente para tener control adicional,
-    # puedes emitir a la propia conexión del remitente también.
-@socketio.on('start_chat')
-def handle_start_chat(data):
-    user_id = data['userId']
-    room_name = f"{min(session.get('id'), user_id)}_{max(session.get('id'), user_id)}"
-
-    # Unir al usuario que inicia el chat a la sala
-    join_room(room_name)
-
-    # Cargar los mensajes correspondientes con esa room de usuarios 
-    mensajes = cargar_mensajes(room_name)
-    
-    # Emitir los mensajes antiguos al room
-    for mensaje in mensajes: 
-        emit('receive_message', {'userId': session.get('id'), 'username': mensaje[0], 'message': mensaje[1]}, room=room_name)
-
-@socketio.on('get_chat_list')
-def handle_chat_list():
-    user_id = session.get('id')
-    rooms = obtener_rooms(user_id)
-
-    user_chats = {}
-    for room in rooms:
-        room_name = room[0]
-        other_user_id = room_name.split('_')
-        other_user_id.remove(user_id)
-        other_user_id = other_user_id[0]
-
-        user_chats[other_user_id] = []
-    
-    emit('chat_list', user_chats)
+    # Enviar el historial de chat al cliente
+    emit('chat_history', {
+        'room_name': room_name,
+        'messages': messages
+    })
 
 @socketio.on('canciones_mas_escuchadas')
 def handle_canciones_mas_escuchadas(data):

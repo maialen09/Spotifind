@@ -76,30 +76,6 @@
             });
         });
 
-        // Recibir la lista de chats previos del servidor
-        socket.on('chat_list', function(userChats) {
-            const chatList = document.getElementById('chat-list');
-            chatList.innerHTML = ''; // Limpiar la lista existente
-
-            for (const userId in userChats) {
-                const li = document.createElement('li');
-                li.textContent = `Chat con el usuario: ${userId}`;
-
-                const openChatButton = document.createElement('button');
-                openChatButton.textContent = 'Abrir chat';
-                openChatButton.onclick = function() {
-                    openChat(userId); // Llama a la función para abrir la ventana de chat
-                };
-
-                li.appendChild(openChatButton);
-                chatList.appendChild(li);
-            }
-        });
-
-        // Emitir el evento para cargar los chats previos solo después de que los usuarios en tiempo real se hayan cargado
-        window.onload = function() {
-            socket.emit('get_chat_list'); // Solicitar la lista de chats previos
-        };
 
         // Función para abrir el menú con botones
         function openMenu(userId, username) {
@@ -122,7 +98,7 @@
             openChatButton.textContent = 'Abrir chat';
             openChatButton.onclick = function() {
                 closeMenu(); // Cerrar el menú
-                openChat(userId, username); // Abrir el chat
+                openChat(userId); 
             };
 
             const anotherOptionButton = document.createElement('button');
@@ -143,6 +119,80 @@
 
             document.body.appendChild(menuModal);
         }
+
+        function openChat(userId){
+
+            socket.emit('get_user_id');
+
+            const currentUserId = sessionStorage.getItem('user_id')
+            const roomName = generateRoomName(currentUserId, userId)    
+            // Si ya existe una ventana de chat abierta para esta sala, no la volvemos a abrir
+    if (activeChats[roomName]) {
+        return;
+    }
+
+    // Crear la ventana de chat
+    const chatWindow = document.createElement('div');
+    chatWindow.classList.add('chat-window');
+    chatWindow.innerHTML = `
+        <div class="chat-header">Chat con el usuario ${userId}</div>
+        <div class="chat-messages" id="chat-messages-${roomName}"></div>
+        <input type="text" id="chat-input-${roomName}" placeholder="Escribe un mensaje..." />
+        <button onclick="sendMessage('${roomName}', '${userId}')">Enviar</button>
+    `;
+
+    document.body.appendChild(chatWindow);
+    activeChats[roomName] = chatWindow;
+
+    // Unirse a la sala de chat
+    socket.emit('join_room', { room_name: roomName, user_id: userId });
+
+    // Cargar los mensajes guardados desde la base de datos
+    socket.emit('load_chat_history', roomName);
+}
+
+        // Función para generar el nombre de la sala único basado en los dos usuarios
+function generateRoomName(user1, user2) {
+    return [user1, user2].sort().join('-'); // Asegura que el orden de los usuarios no importe
+}
+
+// Función para enviar un mensaje
+function sendMessage(roomName, userId) {
+    const messageInput = document.getElementById(`chat-input-${roomName}`);
+    const message = messageInput.value;
+
+    if (message.trim()) {
+        socket.emit('send_message', {
+            room_name: roomName,
+            message: message,
+            user_id: userId
+        });
+        messageInput.value = ''; // Limpiar el campo de entrada
+    }
+}
+
+// Escuchar mensajes entrantes
+socket.on('receive_message', function(data) {
+    const chatMessages = document.getElementById(`chat-messages-${data.room_name}`);
+    if (chatMessages) {
+        chatMessages.innerHTML += `<div><strong>${data.username}:</strong> ${data.message}</div>`;
+    }
+});
+
+// Recibir historial de chat cargado
+socket.on('chat_history', function(data) {
+    const chatMessages = document.getElementById(`chat-messages-${data.room_name}`);
+    if (chatMessages) {
+        data.messages.forEach(msg => {
+            chatMessages.innerHTML += `<div><strong>${msg.username}:</strong> ${msg.message}</div>`;
+        });
+    }
+});
+
+        socket.on('receive_user_id', function(userId) {
+                console.log('ID del usuario actual:', userId);
+                sessionStorage.setItem('user_id', userId); // Guardar el ID en el almacenamiento de sesión
+        });
 
         function closeMenu() {
             const menuModal = document.getElementById('menu-modal');
@@ -235,80 +285,7 @@ socket.on('imprimir' , function(data){
         }
 
 
-        // Funciones para abrir y manejar los chats
-        function openChat(userId, username) {
-            if (!activeChats[userId]) {
-                const chatModal = document.createElement('div');
-                chatModal.id = `chat-modal-${userId}`;
-                chatModal.classList.add('chat-modal');
-
-                const chatHeader = document.createElement('div');
-                chatHeader.classList.add('chat-header');
-                chatHeader.innerHTML = `<span>Chat with ${username || userId}</span> <button onclick="closeChat('${userId}')">Close</button>`;
-
-                const chatMessages = document.createElement('div');
-                chatMessages.id = `chat-messages-${userId}`;
-                chatMessages.classList.add('chat-messages');
-
-                const chatInput = document.createElement('input');
-                chatInput.type = 'text';
-                chatInput.placeholder = 'Type a message...';
-                chatInput.id = `chat-input-${userId}`;
-
-                const sendButton = document.createElement('button');
-                sendButton.textContent = 'Send';
-                sendButton.onclick = function() {
-                    sendMessage(userId);
-                };
-
-                chatModal.appendChild(chatHeader);
-                chatModal.appendChild(chatMessages);
-                chatModal.appendChild(chatInput);
-                chatModal.appendChild(sendButton);
-
-                document.body.appendChild(chatModal);
-
-                activeChats[userId] = chatModal;
-
-                // Iniciar el chat y cargar mensajes antiguos
-                socket.emit('start_chat', { userId: userId, username: username });
-            }
-        }
-
-        function closeChat(userId) {
-            const chatModal = document.getElementById(`chat-modal-${userId}`);
-            if (chatModal) {
-                chatModal.remove(); // Eliminar la ventana del DOM
-                delete activeChats[userId]; // Eliminar la referencia de la ventana de chat
-            }
-        }
-
-        function sendMessage(userId) {
-            const messageInput = document.getElementById(`chat-input-${userId}`);
-            const message = messageInput.value;
-            if (message.trim()) {
-                const chatMessages = document.getElementById(`chat-messages-${userId}`);
-                const messageElement = document.createElement('div');
-                messageElement.textContent = `You: ${message}`;
-                chatMessages.appendChild(messageElement);
-
-                socket.emit('send_message', { userId: userId, message });
-
-                messageInput.value = ''; // Limpiar el campo de texto
-                chatMessages.scrollTop = chatMessages.scrollHeight; // Desplazar hacia abajo al nuevo mensaje
-            }
-        }
-
-        socket.on('receive_message', function(data) {
-            const userId = data.userId;
-            const chatMessages = document.getElementById(`chat-messages-${userId}`);
-            if (chatMessages) {
-                const messageElement = document.createElement('div');
-                messageElement.textContent = `${data.username}: ${data.message}`;
-                chatMessages.appendChild(messageElement);
-                chatMessages.scrollTop = chatMessages.scrollHeight; // Desplazar hacia abajo
-            }
-        });
+      
     </script>
 </body>
 </html>
