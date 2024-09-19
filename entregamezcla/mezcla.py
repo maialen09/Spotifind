@@ -328,7 +328,7 @@ def handle_get_user_id():
 def handle_join_room(data):
     room_name = data['room_name']
     join_room(room_name)
-    emit('system_message', f'{session.get('usuario')} se ha unido a la sala {room_name}', room=room_name)
+    emit('system_message', f"{session.get('usuario')} se ha unido a la sala {room_name}", room=room_name)
 
 @socketio.on('send_message')
 def handle_send_message(data):
