@@ -13,6 +13,8 @@ import json
 import base64
 from spotipy.oauth2 import SpotifyOAuth
 from flask_socketio import SocketIO, emit, join_room, leave_room
+from threading import Thread 
+import time
 
 app = Flask(__name__)
 # Configuración de la clave secreta
@@ -132,6 +134,33 @@ def obtener_rooms(user_id):
         cursor.execute("SELECT DISTINCT room_name FROM mensajes WHERE room_name LIKE %s", (f"%{user_id}%",))
         rooms = cursor.fetchall()
     return rooms
+
+
+def actualizar_cancion_periodicamente():
+    while True:
+        with app.app_context():
+            for user_id in connected_users: 
+                access_token = tokens.get(user_id)
+                if access_token:
+                    headers= {
+                        'Authorization': f'Bearer {access_token}'
+                    }
+                    profile_url = 'https://api.spotify.com/v1/me/player/currently-playing'
+                    response = requests.get(profile_url, headers=headers)
+                    if response.status_code == 200:
+                        response_data = response.json()
+                        if 'item' in response_data:
+                            track = response_data['item']['name']
+                            artist = response_data['item']['artists'][0]['name']
+                            
+                            # Emitir la actualización de la canción
+                            socketio.emit('song_update', {
+                                'user_id': user_id,
+                                'track': track,
+                                'artist': artist
+                            })
+        time.sleep(120)
+
 
 
 @app.route('/')
@@ -513,4 +542,7 @@ def comprobarCoincidencia(lista1,lista2):
 # Ejecución de la aplicación
 if __name__ == '__main__':
     ##app.run(debug=True, host='0.0.0.0')
+    thread = Thread(target=actualizar_cancion_periodicamente)
+    thread.start()
+
     socketio.run(app, debug=True, host='0.0.0.0')

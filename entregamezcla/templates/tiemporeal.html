@@ -60,7 +60,13 @@
 
             personas.forEach(persona => {
                 const li = document.createElement('li');
-                li.textContent = `ID: ${persona.id}, Canción: ${persona.track}, Artista: ${persona.artist}`;
+                li.classList.add(`persona-${persona.id}`);
+                //li.textContent = `ID: ${persona.id}, Canción: ${persona.track}, Artista: ${persona.artist}`;
+                const textContainer = document.createElement('div');
+                textContainer.classList.add('text-container');
+                textContainer.textContent = `ID: ${persona.id}, Canción: ${persona.track}, Artista: ${persona.artist}`;
+
+
 
                 const img = document.createElement('img');
                 img.src = persona.imagen[0];
@@ -72,6 +78,7 @@
                 });
 
                 li.appendChild(img);
+                li.appendChild(textContainer);
                 userList.appendChild(li);
             });
         });
@@ -319,6 +326,17 @@ socket.on('imprimir' , function(data){
 
             console.log(data);
         }
+        socket.on('song_update', function(data) {
+    // Actualizar la interfaz con la nueva canción y artista
+    let userElement = document.querySelector(`.persona-${data.user_id}`);
+    if (userElement) {
+       
+        let textContainer = userElement.querySelector('.text-container');
+        if (textContainer) {
+            textContainer.textContent = `ID: ${data.user_id}, Canción: ${data.track}, Artista: ${data.artist}`;
+        }
+    }
+});
 
 
       
