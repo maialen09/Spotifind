@@ -112,17 +112,17 @@ def obtener_imagen(id):
     return imagen
 
 ## método para insertar los mensajes en la base de datos  
-def insertar_mensaje(room_name, username, message):
+def insertar_mensaje(room_name, username, message, user_id):
     with mysql.connector.connect(**db_config) as conn: 
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO mensajes (room_name, username, message) VALUES (%s, %s, %s)", (room_name, username, message))
+        cursor.execute("INSERT INTO mensajes (room_name, username, message,user_id) VALUES (%s, %s, %s, %s)", (room_name, username, message, user_id))
         conn.commit()
 
 ## método para obtener los mensajes de la room de dos usuarios 
 def cargar_mensajes(room_name):
     with mysql.connector.connect(**db_config) as conn: 
         cursor = conn.cursor()
-        cursor.execute("SELECT username, message FROM mensajes WHERE room_name = %s", (room_name,))
+        cursor.execute("SELECT username, message, user_id FROM mensajes WHERE room_name = %s", (room_name,))
         mensajes = cursor.fetchall()
     return mensajes 
 
@@ -335,20 +335,24 @@ def handle_send_message(data):
     room_name = data['room_name']
     message = data['message']
     username = session.get('usuario')  # Obtiene el nombre del usuario desde la sesión
+    user_id = session.get('id')
 
     # Insertar el mensaje en la base de datos
-    insertar_mensaje(room_name,username,message)
+    insertar_mensaje(room_name,username,message, user_id)
 
     # Emitir el mensaje a todos en la sala
     emit('receive_message', {
         'room_name': room_name,
         'username': username,
-        'message': message
+        'message': message,
+        'user_id': user_id
     }, room=room_name)
 
 @socketio.on('load_chat_history')
 def handle_load_chat_history(room_name):
     messages = cargar_mensajes(room_name)
+
+    emit('imprimir', messages)
 
     # Enviar el historial de chat al cliente
     emit('chat_history', {

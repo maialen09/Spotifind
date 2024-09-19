@@ -124,8 +124,16 @@
 
             socket.emit('get_user_id');
 
-            const currentUserId = sessionStorage.getItem('user_id')
-            const roomName = generateRoomName(currentUserId, userId)    
+
+            new Promise((resolve) => {
+        socket.once('receive_user_id', function(userId) {
+            sessionStorage.setItem('user_id', userId); // Guardar el ID en el almacenamiento de sesión
+            resolve(userId);
+        });
+    }).then((currentUserId) => {
+        const roomName = generateRoomName(currentUserId, userId);
+        console.log(roomName);
+  
             // Si ya existe una ventana de chat abierta para esta sala, no la volvemos a abrir
     if (activeChats[roomName]) {
         return;
@@ -135,7 +143,10 @@
     const chatWindow = document.createElement('div');
     chatWindow.classList.add('chat-window');
     chatWindow.innerHTML = `
-        <div class="chat-header">Chat con el usuario ${userId}</div>
+        <div class="chat-header">
+            Chat con el usuario ${userId}
+            <button class="close-chat-btn" onclick="closeChat('${roomName}')">&times;</button>
+            </div>
         <div class="chat-messages" id="chat-messages-${roomName}"></div>
         <input type="text" id="chat-input-${roomName}" placeholder="Escribe un mensaje..." />
         <button onclick="sendMessage('${roomName}', '${userId}')">Enviar</button>
@@ -149,6 +160,8 @@
 
     // Cargar los mensajes guardados desde la base de datos
     socket.emit('load_chat_history', roomName);
+});
+
 }
 
         // Función para generar el nombre de la sala único basado en los dos usuarios
@@ -173,18 +186,33 @@ function sendMessage(roomName, userId) {
 
 // Escuchar mensajes entrantes
 socket.on('receive_message', function(data) {
+    const current = sessionStorage.getItem('user_id');
     const chatMessages = document.getElementById(`chat-messages-${data.room_name}`);
     if (chatMessages) {
-        chatMessages.innerHTML += `<div><strong>${data.username}:</strong> ${data.message}</div>`;
+        const messageClass = data.user_id === current ? 'chat-message-user' : 'chat-message-other';
+        chatMessages.innerHTML += `
+            <div class="${messageClass}">
+                <strong>${data.username}:</strong> ${data.message}
+            </div>
+        `;
     }
 });
 
 // Recibir historial de chat cargado
 socket.on('chat_history', function(data) {
     const chatMessages = document.getElementById(`chat-messages-${data.room_name}`);
+    const current = sessionStorage.getItem('user_id');
+
     if (chatMessages) {
         data.messages.forEach(msg => {
-            chatMessages.innerHTML += `<div><strong>${msg.username}:</strong> ${msg.message}</div>`;
+            const [username, message, userId] = msg;
+            imprimir(userId); 
+            const messageClass = userId === current ? 'chat-message-user' : 'chat-message-other';
+            chatMessages.innerHTML += `
+                <div class="${messageClass}">
+                    <strong>${username}:</strong> ${message}
+                </div>
+            `;
         });
     }
 });
@@ -198,6 +226,14 @@ socket.on('chat_history', function(data) {
             const menuModal = document.getElementById('menu-modal');
             if (menuModal) {
                 menuModal.remove(); // Eliminar el menú del DOM
+            }
+        }
+
+        function closeChat(roomName){
+            const chatWindow = activeChats[roomName]
+            if (chatWindow){
+                chatWindow.remove();
+                delete activeChats[roomName];
             }
         }
 
