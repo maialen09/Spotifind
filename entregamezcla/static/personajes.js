@@ -12,27 +12,37 @@ function updateImage(category, selectedColor) {
         }
 }
 
-// los radio button no gestionan el quitar el click asi que hay que hacerlo manualmente 
-function handleRadioClick(event){
+function handleRadioClick(event) {
+    const category = this.dataset.category;
 
-    if (this.dataset.wasChecked == 'true'){
+    // Obtener todos los radio buttons que comparten el mismo name
+    const radioButtons = document.querySelectorAll(`input[name="${this.name}"]`);
+
+    // Eliminar las imágenes de todos los radio buttons del mismo name
+    radioButtons.forEach((radio) => {
+        updateImage(radio.dataset.category, null);
+    });
+
+    // Si ya estaba seleccionado, deseleccionarlo y no mostrar ninguna imagen
+    if (this.dataset.wasChecked === 'true') {
         this.checked = false;
         this.dataset.wasChecked = 'false';
-        updateImage(this.dataset.category, null);
-    }
-    else{
-        this.checked = true; 
-        this.dataset.wasChecked = 'true'; 
-        updateImage(this.dataset.category, this.id);
+    } 
+    // Si no estaba seleccionado, marcar este radio y mostrar la nueva imagen
+    else {
+        this.checked = true;
+        this.dataset.wasChecked = 'true';
+        updateImage(this.dataset.category, this.id);  // Mostrar la imagen del radio seleccionado
     }
 
-    const radioButtons = document.querySelectorAll(`input[name="${this.name}"]`);
+    // Asegurarse de que los otros radios de la misma categoría estén desmarcados
     radioButtons.forEach((radio) => {
         if (radio !== this) {
             radio.dataset.wasChecked = 'false';
         }
     });
 }
+
 
 // Manejo de cambios para cada categoría
 const radiosBody = document.querySelectorAll('input[name="body_type"]');
@@ -44,8 +54,8 @@ radiosBody.forEach((radio) => {
     radio.addEventListener('click', handleRadioClick);
 });
 
-const radiosGafas = document.querySelectorAll('input[name="gafas"]');
-radiosGafas.forEach((radio) => {
+const radiosOjos = document.querySelectorAll('input[name="ojos"]');
+radiosOjos.forEach((radio) => {
     //radio.addEventListener('change', function() {
         
       //  if (this.value == "cuadradas"){
@@ -58,35 +68,58 @@ radiosGafas.forEach((radio) => {
         
     //});
 
-    if (radio.value == "cuadradas"){
-        radio.dataset.category = 'gafas_rectangulares';
+    if (radio.value == "medios"){
+        radio.dataset.category = 'ojos_medios';
+        radio.addEventListener('click', handleRadioClick);
+    }
+
+    else if (radio.value == "redondos"){
+        radio.dataset.category = 'ojos_redondos';
         radio.addEventListener('click', handleRadioClick);
     }
 
     else{
-        radio.dataset.category = 'gafas_redondas';
+        radio.dataset.category = 'ojos_aplastados';
         radio.addEventListener('click', handleRadioClick);
     }
 });
 
-const radiosOjos = document.querySelectorAll('input[name="ojos"]');
-radiosOjos.forEach((radio) => {
+const radiosCamisetas = document.querySelectorAll('input[name="camisetas"]');
+radiosCamisetas.forEach((radio) => {
     //radio.addEventListener('change', function() {
         //updateImage('ojos', this.id);
     //});
-    radio.dataset.category = 'ojos';
-    radio.addEventListener('click', handleRadioClick);
+    if (radio.value == "manga_corta"){
+        radio.dataset.category = 'camiseta_manga_corta';
+        radio.addEventListener('click', handleRadioClick);
+    }
+
+    else if (radio.value == "tirantes"){
+        radio.dataset.category = 'camiseta_tirantes';
+        radio.addEventListener('click', handleRadioClick);
+    }
+
+    else if (radio.value == "sudadera"){
+        radio.dataset.category = 'camiseta_sudaderas';
+        radio.addEventListener('click', handleRadioClick);
+
+    }
+    else if (radio.value == "manga_larga"){
+
+        radio.dataset.category = 'camiseta_mangas_largas';
+        radio.addEventListener('click', handleRadioClick);
+
+    }
+    else{
+
+        radio.dataset.category = 'camiseta_camisa';
+        radio.addEventListener('click', handleRadioClick);
+
+    }
+
 });
 
-const radiosVestidos = document.querySelectorAll('input[name="vestidos"]');
-radiosVestidos.forEach((radio) => {
-    //radio.addEventListener('change', function() {
-      //  updateImage('vestidos', this.id);
-    //});
 
-    radio.dataset.category = 'vestidos';
-    radio.addEventListener('click', handleRadioClick);
-});
 
 const radiosBocas = document.querySelectorAll('input[name="bocas"]');
 radiosBocas.forEach((radio) => {
