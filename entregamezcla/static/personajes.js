@@ -130,3 +130,50 @@ radiosBocas.forEach((radio) => {
     radio.dataset.category = 'bocas';
     radio.addEventListener('click', handleRadioClick);
 });
+
+const radiosPelos = document.querySelectorAll('input[name="pelos"]');
+radiosPelos.forEach((radio) => {
+    //radio.addEventListener('change', function() {
+        //updateImage('ojos', this.id);
+    //});
+    if (radio.value == "melena1"){
+        radio.dataset.category = 'melena1';
+        radio.addEventListener('click', handleRadioClick);
+    }
+
+    else if (radio.value == "pelo_corto1"){
+        radio.dataset.category = 'pelo_corto1';
+        radio.addEventListener('click', handleRadioClick);
+    }
+
+    else if (radio.value == "melena2"){
+        radio.dataset.category = 'melena2';
+        radio.addEventListener('click', handleRadioClick);
+
+    }
+    else if (radio.value == "pelo_corto2"){
+
+        radio.dataset.category = 'pelo_corto2';
+        radio.addEventListener('click', handleRadioClick);
+
+    }
+    else if (radio.value == "cresta"){
+
+        radio.dataset.category = 'cresta';
+        radio.addEventListener('click', handleRadioClick);
+
+    }
+    else if (radio.value == "pelo_corto3"){
+
+        radio.dataset.category = 'pelo_corto3';
+        radio.addEventListener('click', handleRadioClick);
+
+    }
+    else{
+
+        radio.dataset.category = 'rapado';
+        radio.addEventListener('click', handleRadioClick);
+
+    }
+
+});
