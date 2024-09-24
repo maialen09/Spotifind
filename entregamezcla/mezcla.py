@@ -65,7 +65,7 @@ def insertar_usuarios(num_users):
 def get_usuarios():
     with mysql.connector.connect(**db_config) as conn:
         cursor = conn.cursor()
-        query = "SELECT nombre, ruta_imagen FROM Usuarios"
+        query = "SELECT nombre FROM Usuarios"
         cursor.execute(query)
         users = cursor.fetchall()
     return users
@@ -317,6 +317,22 @@ def tiemporeal():
 def personajes():
     return render_template('personajes.html')
 
+
+@app.route('/guardar_imagen', methods=['POST'])
+def guardar_imagen():
+    data = request.get_json()
+    
+    # Obtener el nombre del usuario y la imagen en base64
+    imagen_base64 = data['imagen']
+    
+    # Decodificar la imagen base64 a binario
+    imagen_binaria = base64.b64decode(imagen_base64)
+
+    # Insertar en la base de datos (puedes ajustar para recibir también el nombre del usuario)
+    insertar_imagen(session.get('id'), imagen_binaria)
+
+    return jsonify({'mensaje': 'Imagen guardada correctamente'}), 200
+
 # Manejar el evento de nueva canción
 ##@socketio.on('new_song')
 ##def handle_new_song(json):
@@ -334,7 +350,9 @@ def handle_connect(auth=None):
     chat_conexions[session.get('id')] = request.sid
     usuario = session.get('usuario')
     img = obtener_imagen(session.get('id'))
-    new_dic2 = {'id': session.get('id'),'usuario': usuario, 'imagen' : img, 'track': session.get('track'), 'artist': session.get('artist')}
+    img_1 = img[0]  
+    img_base64 = base64.b64encode(img_1[-1]).decode('utf-8')    
+    new_dic2 = {'id': session.get('id'),'usuario': usuario, 'imagen' : img_base64, 'track': session.get('track'), 'artist': session.get('artist')}
     imagenes.append(new_dic2)
     emit('update_user_list', list(imagenes), broadcast=True)
 

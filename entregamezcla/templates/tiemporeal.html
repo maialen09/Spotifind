@@ -69,7 +69,8 @@
 
 
                 const img = document.createElement('img');
-                img.src = persona.imagen[0];
+                imprimir(persona.imagen)
+                img.src =`data:image/png;base64,${persona.imagen}`;
                 img.setAttribute('data-id', persona.id);
                 img.setAttribute('data-username', persona.usuario);
                 img.classList.add('clickable-image');
