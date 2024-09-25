@@ -22,34 +22,6 @@
 
     </div>
 
-    <div id="songModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <div class="song-window">
-                <!-- Primera lista de canciones -->
-                <div class="song-list">
-                    {% for song in lista1 %}
-                    <div class="song-item">
-                        <img src="{{ song['image_url'] }}" alt="Portada de la canción">
-                        <p class="song-title">{{ song['name'] }}</p>
-                        <p class="song-artist">{{ song['artist'] }}</p>
-                    </div>
-                    {% endfor %}
-                </div>
-
-                <!-- Segunda lista de canciones -->
-                <div class="song-list">
-                    {% for song in lista2 %}
-                    <div class="song-item">
-                        <img src="{{ song['image_url'] }}" alt="Portada de la canción">
-                        <p class="song-title">{{ song['name'] }}</p>
-                        <p class="song-artist">{{ song['artist'] }}</p>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-    </div>
 
 
     <script>
@@ -257,55 +229,9 @@ socket.on('chat_history', function(data) {
             }
         }
 
-        function mostrarCanciones(lista1, lista2){
+        
 
-            const songList1 = document.querySelector('#songModal .song-list:nth-child(1)');
-            const songList2 = document.querySelector('#songModal .song-list:nth-child(2)');
-
-            songList1.innerHTML = '';
-            songList2.innerHTML = '';
-
-            lista1.forEach(song => {
-            const songItem = `
-            <div class="song-item">
-                <img src="${song.image_url}" alt="Portada de la canción">
-                <p class="song-title">${song.name}</p>
-                <p class="song-artist">${song.artist}</p>
-            </div>
-                `;
-             songList1.innerHTML += songItem;
-            });
-
-    // Cargar las canciones en la segunda lista
-            lista2.forEach(song => {
-                const songItem = `
-                    <div class="song-item">
-                        <img src="${song.image_url}" alt="Portada de la canción">
-                        <p class="song-title">${song.name}</p>
-                        <p class="song-artist">${song.artist}</p>
-                    </div>
-                `;
-                songList2.innerHTML += songItem;
-            });
-        }
-
-        socket.on('canciones', function(data){
-
-            const modal = document.getElementById('songModal');
-
-            const closeBtn = document.querySelector('.close-btn');
-
-            modal.style.display = 'block';
-
-            closeBtn.onclick = function() {
-              modal.style.display = 'none';
-            }
-
-            mostrarCanciones(data.access_token, data.otro_access_token);
-
-            imprimir(data.access_token);
-            imprimir(data.otro_access_token);
-        });
+      
 
         
 socket.on('track', function(track) {

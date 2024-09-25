@@ -173,7 +173,7 @@ def menu():
 
 @app.route('/login')
 def login():
-    scope = 'user-read-currently-playing user-read-playback-state user-top-read user-library-read'
+    scope = 'user-read-currently-playing user-read-playback-state user-top-read user-library-read user-follow-read'
     auth_url = 'https://accounts.spotify.com/authorize'
     response_type = 'code'
     
@@ -458,6 +458,7 @@ def handle_canciones_mas_escuchadas(data):
 
 @socketio.on('cantante_en_comun')
 def handle_cantante_en_comun(data):
+    
     periodos = ['long_term', 'medium_term', 'short_term']
     artist = None
 
@@ -473,6 +474,7 @@ def handle_cantante_en_comun(data):
     
 
     if artist is None:
+         ## mirar en los cantantes que siguen a ver si hay alguno en comun 
          emit('track', {'status': 'no_match', 'message': 'No tienen ningun cantante en común.'})
     else:
         emit('artist', {
