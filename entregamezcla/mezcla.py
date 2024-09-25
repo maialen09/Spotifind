@@ -473,12 +473,11 @@ def handle_cantante_en_comun(data):
     
 
     if artist is None:
-         emit('track', {'status': 'no_match', 'message': 'No tienen ninguna canción en común.'})
+         emit('track', {'status': 'no_match', 'message': 'No tienen ningun cantante en común.'})
     else:
-        emit('track', {
+        emit('artist', {
             'status': 'match',
             'name': artist['name'],
-            'artist': artist['artist'],
             'image_url': artist['image_url']})
 
 
@@ -506,18 +505,16 @@ def calcularArtista(quien, tiempo, data):
     response = response.json()
     
     artistas = response['items']
-    emit('imprimir', artistas)
     lista = []
 
     for artista in artistas: 
-        image_url = artista['album']['images'][0]['url'] if artista['album']['images'] else 'default_image_url'
+        image_url = artista['images'][0]['url'] if artista['images'] else 'default_image_url'
         
         # El primer artista en la lista de artistas
-        artist_name = artista['artists'][0]['name'] if artista['artists'] else 'Unknown Artist'
+        artist_name = artista['name'] if artista['name'] else 'Unknown Artist'
         
         lista.append({
-            'name': artista['name'],
-            'artist': artist_name,
+            'name': artist_name,
             'image_url': image_url,
             'id': artista['id']
         })
