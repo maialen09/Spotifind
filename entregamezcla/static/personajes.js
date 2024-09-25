@@ -181,59 +181,57 @@ radiosPelos.forEach((radio) => {
 
 
 document.addEventListener('DOMContentLoaded', () => {
-document.getElementById('guardar').addEventListener('click', () => {
+    document.getElementById('guardar').addEventListener('click', () => {
 
-    const images = document.querySelectorAll('.image-container img');
-    const canvas = document.getElementById('combinedCanvas');
-    const ctx = canvas.getContext('2d');
-    
-    // Asegúrate de ajustar el tamaño del canvas al tamaño de las imágenes
-    const width = images[0].naturalWidth;
-    const height = images[0].naturalHeight;
-    canvas.width = width;
-    canvas.height = height;
-
-    // Dibujar todas las imágenes en el canvas
-    images.forEach(image => {
-        if (image.src) { // Solo dibujamos si la imagen tiene una fuente
-            ctx.drawImage(image, 0, 0, width, height);
+        const images = document.querySelectorAll('.image-container img');
+        if (images.length === 0) {
+            console.error('No se encontraron imágenes.');
+            return;
         }
+
+        const canvas = document.getElementById('combinedCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Esperar a que todas las imágenes estén cargadas
+        let firstImage = images[0];
+
+        if (!firstImage.complete) {
+            console.error('La primera imagen no está cargada.');
+            return;
+        }
+
+        const width = firstImage.naturalWidth;
+        const height = firstImage.naturalHeight;
+        canvas.width = width;
+        canvas.height = height;
+
+        // Dibujar todas las imágenes en el canvas
+        images.forEach(image => {
+            if (image.complete && image.naturalWidth !== 0 && image.naturalHeight !== 0) {
+                ctx.drawImage(image, 0, 0, width, height);
+            } else {
+                console.warn('Una imagen no está completamente cargada o no tiene dimensiones válidas.');
+            }
+        });
+
+        const dataURL = canvas.toDataURL('image/png');
+        const base64Data = dataURL.replace(/^data:image\/(png|jpg);base64,/, '');
+
+        fetch('/guardar_imagen', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ imagen: base64Data }),
+        })
+        .then(response => response.json())
+        .then(data => console.log('Imagen guardada correctamente', data))
+        .catch(error => console.error('Error al guardar la imagen:', error));
+
+        const resultContainer = document.getElementById('result-container');
+        resultContainer.innerHTML = '';  
+        const combinedImage = new Image();
+        combinedImage.src = dataURL;
+        resultContainer.appendChild(combinedImage);
     });
-
-    // Convertir el canvas a una imagen y mostrarla en la pantalla
-    const resultContainer = document.getElementById('result-container');
-    const dataURL = canvas.toDataURL('image/png');
-
-    // Crear una nueva imagen con el resultado
-    const combinedImage = new Image();
-    combinedImage.src = dataURL;
-
-    const base64Data = dataURL.replace(/^data:image\/(png|jpg);base64,/, '');
-
-    fetch('/guardar_imagen', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            imagen: base64Data,
-        }),
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Imagen guardada correctamente', data);
-    })
-    .catch(error => {
-        console.error('Error al guardar la imagen:', error);
-    });
-
-    
-    // Limpiar el contenedor anterior y mostrar la nueva imagen
-    resultContainer.innerHTML = '';  // Limpiar cualquier imagen anterior
-    resultContainer.appendChild(combinedImage); 
-
-
-    
-});
-
 });

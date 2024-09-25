@@ -18,6 +18,10 @@
         <!-- Aquí se mostrará la información de la canción o el mensaje -->
     </div>
 
+    <div id="artist-info">
+
+    </div>
+
     <div id="songModal" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
@@ -113,6 +117,13 @@
             anotherOptionButton.textContent = 'Vuestra canción';
             anotherOptionButton.onclick = function() {
                 closeMenu();
+                socket.emit('cantante_en_comun', userId);
+            };
+
+            const botonCantante = document.createElement('button');
+            botonCantante.textContent = 'Vuestro cantante';
+            botonCantante.onclick = function() {
+                closeMenu();
                 socket.emit('canciones_mas_escuchadas', userId);
             };
 
@@ -123,6 +134,7 @@
             menuModal.appendChild(menuHeader);
             menuModal.appendChild(openChatButton);
             menuModal.appendChild(anotherOptionButton);
+            menuModal.appendChild(botonCantante);
             menuModal.appendChild(closeButton);
 
             document.body.appendChild(menuModal);
@@ -317,6 +329,29 @@ socket.on('track', function(track) {
         `;
     }
 });
+
+socket.on('artist', function(artist) {
+    const trackContainer = document.getElementById('artist-info');
+
+    if (artist.status === 'match') {
+        // Si hay coincidencia, mostrar la imagen, nombre y artista
+        trackContainer.innerHTML = `
+            <div>
+                <img src="${artist.image_url}" alt="Portada del Álbum" style="width: 200px; height: 200px;">
+                <h2>Canción: ${artist.name}</h2>
+                <h3>Artista: ${artist.artist}</h3>
+            </div>
+        `;
+    } else if (artist.status === 'no_match') {
+        // Si no hay coincidencia, mostrar mensaje
+        trackContainer.innerHTML = `
+            <div>
+                <h2>${artist.message}</h2>
+            </div>
+        `;
+    }
+});
+
      
 socket.on('imprimir' , function(data){
 

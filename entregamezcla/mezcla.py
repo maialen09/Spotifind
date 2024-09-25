@@ -429,16 +429,15 @@ def handle_canciones_mas_escuchadas(data):
     if track is None:
         ## comprobar en canciones guardadas , las ultimas 50 solo por el momento 
 
-        r1 = comprobarCancionesGuardadas(data)
-        r2 = comprobarCancionesGuardadas(None)
+        r1 = comprobarCancionesGuardadas(data) ## lista de canciones guardadas 1
+        r2 = comprobarCancionesGuardadas(None) ## lista de canciones guardadas 2 
 
-        emit('imprimir', r1)
-        emit('imprimir', r2)
-
+        ## comprueba si coincide alguna de las canciones guardadas con alguna de las otras canciones guardadas
         guardada = comprobarCoincidencia(r1,r2)
 
         
         if guardada is None:
+           ## deberia comprobar si alguna de las canciones guardadas coincide con alguna de las canciones más oidas
            emit('track', {'status': 'no_match', 'message': 'No tienen ninguna canción en común.'})
         else:
             emit('track', {
@@ -456,6 +455,75 @@ def handle_canciones_mas_escuchadas(data):
     
     
     #emit('canciones', {'access_token':lista1, 'otro_access_token': lista2})   
+
+@socketio.on('cantante_en_comun')
+def handle_cantante_en_comun(data):
+    periodos = ['long_term', 'medium_term', 'short_term']
+    artist = None
+
+    for periodo1 in periodos:
+        lista1 = calcularArtista("destinatario", periodo1,data)
+        for periodo2 in periodos: 
+            lista2 = calcularArtista("remitente", periodo2, data)
+            artist = comprobarCoincidencia(lista1,lista2)
+            if artist:
+                break
+        if artist:
+            break
+    
+
+    if artist is None:
+         emit('track', {'status': 'no_match', 'message': 'No tienen ninguna canción en común.'})
+    else:
+        emit('track', {
+            'status': 'match',
+            'name': artist['name'],
+            'artist': artist['artist'],
+            'image_url': artist['image_url']})
+
+
+def calcularArtista(quien, tiempo, data):
+    
+    if quien == "destinatario":
+
+        access_token = tokens.get(data)
+
+    else:
+        access_token = session.get('access_token')
+
+    params = {
+    'limit': request.args.get('limit', default=50, type=int),
+    'time_range': request.args.get('time_range', default=tiempo)
+    }
+    
+    headers = {
+        'Authorization': f'Bearer {access_token}'
+    }
+    profile_url = 'https://api.spotify.com/v1/me/top/artists'
+    
+    response = requests.get(profile_url, headers=headers, params=params)
+
+    response = response.json()
+    
+    artistas = response['items']
+    emit('imprimir', artistas)
+    lista = []
+
+    for artista in artistas: 
+        image_url = artista['album']['images'][0]['url'] if artista['album']['images'] else 'default_image_url'
+        
+        # El primer artista en la lista de artistas
+        artist_name = artista['artists'][0]['name'] if artista['artists'] else 'Unknown Artist'
+        
+        lista.append({
+            'name': artista['name'],
+            'artist': artist_name,
+            'image_url': image_url,
+            'id': artista['id']
+        })
+    
+    return lista
+
 
 def comprobarCancionesGuardadas(data):
     if data:
@@ -505,7 +573,6 @@ def comprobarCancionesGuardadas(data):
     return lista
 
 
-    
 
 def calcularLista(quien, tiempo, data):
     
