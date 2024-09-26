@@ -303,3 +303,66 @@ h1 {
 .song-list::-webkit-scrollbar-thumb:hover {
     background-color: #555;
 }
+
+.sidebar {
+    width: 300px;
+    height: 100vh;
+    background-color:  #5533ff ;
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+}
+
+/* Título del sidebar */
+.sidebar h2 {
+    color: #fff;
+    font-size: 22px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Lista de chats */
+.chat-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Elementos individuales de la lista de chats */
+.chat-list li {
+    margin-bottom: 15px;
+}
+
+.chat-list a {
+    text-decoration: none;
+    color: #fff;
+    background-color: #4a61c0;
+    padding: 15px;
+    display: block;
+    border-radius: 8px;
+    font-size: 18px;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Efecto hover para cada chat */
+.chat-list a:hover {
+    background-color: #637fe2;
+}
+
+/* Diseño responsivo */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+
+    .chat-list a {
+        font-size: 16px;
+        padding: 10px;
+    }
+}

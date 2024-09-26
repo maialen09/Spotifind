@@ -11,8 +11,14 @@
     <h1>Current Users</h1>
     <ul id="user-list"></ul> <!-- Lista de usuarios en tiempo real -->
 
-    <h1>Your Chats</h1>
-    <ul id="chat-list"></ul> <!-- Lista de chats anteriores -->
+    <div class="sidebar">
+
+        <h2>Your Chats</h2>
+        <ul id="chat-list"></ul> 
+
+
+    </div>
+  
 
     <div id="track-info">
         <!-- Aquí se mostrará la información de la canción o el mensaje -->
@@ -299,7 +305,54 @@ socket.on('imprimir' , function(data){
     }
 });
 
+socket.on('user_chats', function(data) {
+    const chatList = document.getElementById('chat-list'); // Un contenedor en tu HTML donde mostrar los chats
+    chatList.innerHTML = ''; // Limpiar la lista actual
 
+    data.rooms.forEach(function(roomName) {
+        const li = document.createElement('li');
+        li.textContent = `Chat Room: ${roomName}`;
+        li.classList.add('chat-room-item');
+        li.addEventListener('click', function() {
+            openChatFromHistory(roomName);
+        });
+
+        chatList.appendChild(li);
+    });
+});
+
+function openChatFromHistory(roomName) {
+    // Si ya existe una ventana de chat abierta para esta sala, no la volvemos a abrir
+    if (activeChats[roomName]) {
+        return;
+    }
+
+    // Crear la ventana de chat
+    const chatWindow = document.createElement('div');
+    chatWindow.classList.add('chat-window');
+    chatWindow.innerHTML = 
+        `<div class="chat-header">
+            Sala de chat ${roomName}
+            <button class="close-chat-btn" onclick="closeChat('${roomName}')">&times;</button>
+        </div>
+        <div class="chat-messages" id="chat-messages-${roomName}"></div>
+        <input type="text" id="chat-input-${roomName}" placeholder="Escribe un mensaje..." />
+        <button onclick="sendMessage('${roomName}', null)">Enviar</button>`;
+
+    document.body.appendChild(chatWindow);
+    activeChats[roomName] = chatWindow;
+
+    // Unirse a la sala de chat
+    socket.emit('join_room', { room_name: roomName, user_id: sessionStorage.getItem('user_id') });
+
+    // Cargar los mensajes guardados desde la base de datos
+    socket.emit('load_chat_history', roomName);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Pedir los chats previos del usuario al servidor
+    socket.emit('load_user_chats');
+});
       
     </script>
 </body>

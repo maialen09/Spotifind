@@ -39,7 +39,7 @@ chats = defaultdict(list)
 
 CLIENT_ID = '78050eff52214768b3b663c4ed5ca7d1'
 CLIENT_SECRET = '93ac17d42d3441ada7cfd98345ef5c42'
-REDIRECT_URI = 'http://34.76.63.35/callback'
+REDIRECT_URI = 'http://35.205.145.118/callback'
 
 
 # Configuración de la base de datos
@@ -134,6 +134,13 @@ def obtener_rooms(user_id):
         cursor.execute("SELECT DISTINCT room_name FROM mensajes WHERE room_name LIKE %s", (f"%{user_id}%",))
         rooms = cursor.fetchall()
     return rooms
+
+def obtener_chats_usuarios(user_id):
+    with mysql.connector.connect(**db_config) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT DISTINCT room_name FROM mensajes WHERE user_id = %s", (user_id,))
+        chats = cursor.fetchall()
+    return chats
 
 
 def actualizar_cancion_periodicamente():
@@ -406,6 +413,15 @@ def handle_load_chat_history(room_name):
         'room_name': room_name,
         'messages': messages
     })
+
+@socketio.on('load_user_chats')
+def load_user_chats():
+    user_id = session.get('id')  
+    salas = obtener_chats_usuarios(user_id)
+
+    # Enviar la lista de salas al cliente
+    emit('user_chats', {'rooms': [sala[0] for sala in salas]})
+
 
 @socketio.on('canciones_mas_escuchadas')
 def handle_canciones_mas_escuchadas(data):
