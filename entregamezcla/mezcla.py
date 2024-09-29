@@ -14,6 +14,7 @@ import base64
 from spotipy.oauth2 import SpotifyOAuth
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from threading import Thread 
+from flask_cors import CORS
 import time
 
 app = Flask(__name__)
@@ -21,7 +22,11 @@ app = Flask(__name__)
 app.secret_key = 'mi_clave_secreta_super_segura'
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
-socketio = SocketIO(app)
+cors = CORS(app, resources={r"/*": {"origins": "https://mt.spotifind.eus"}})
+
+
+##socketio = SocketIO(app, cors_allowed_origins="https://mt.spotifind.eus")
+socketio = SocketIO(app, cors_allowed_origins="https://mt.spotifind.eus")
 
 ##active_songs = []
 connected_users = set()
@@ -31,6 +36,7 @@ personas = []
 imagenes = [] 
 message_history = {}
 pending_messages = {}
+user_locations = {} ## para poder guardar las ubicaciones
 
 tokens = {}
 
@@ -159,6 +165,8 @@ def actualizar_cancion_periodicamente():
                         if 'item' in response_data:
                             track = response_data['item']['name']
                             artist = response_data['item']['artists'][0]['name']
+
+                           
                             
                             # Emitir la actualización de la canción
                             socketio.emit('song_update', {
@@ -355,13 +363,14 @@ def guardar_imagen():
 def handle_connect(auth=None):
     connected_users.add(session.get('id'))
     chat_conexions[session.get('id')] = request.sid
-    usuario = session.get('usuario')
-    img = obtener_imagen(session.get('id'))
-    img_1 = img[0]  
-    img_base64 = base64.b64encode(img_1[-1]).decode('utf-8')    
-    new_dic2 = {'id': session.get('id'),'usuario': usuario, 'imagen' : img_base64, 'track': session.get('track'), 'artist': session.get('artist')}
-    imagenes.append(new_dic2)
-    emit('update_user_list', list(imagenes), broadcast=True)
+    if not any(imagen['id'] == session.get('id') for imagen in imagenes):
+            usuario = session.get('usuario')
+            img = obtener_imagen(session.get('id'))
+            img_1 = img[0]  
+            img_base64 = base64.b64encode(img_1[-1]).decode('utf-8')    
+            new_dic2 = {'id': session.get('id'),'usuario': usuario, 'imagen' : img_base64, 'track': session.get('track'), 'artist': session.get('artist')}
+            imagenes.append(new_dic2)
+            emit('update_user_list', list(imagenes), broadcast=True)
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -370,8 +379,20 @@ def handle_disconnect():
         del chat_conexions[session.get('id')]
     global imagenes
     imagenes = [imagen for imagen in imagenes if imagen['id'] != session.get('id')]
+    ##emit('remove_user_location', session.get('id'), broadcast=True)
     emit('update_user_list', list(imagenes), broadcast=True)
   
+@socketio.on('user-location')
+def handle_user_location(location):
+    user_id = session.get('id')
+    user_locations[user_id] = {
+
+        'userId' : user_id,
+        'lat': location['lat'],
+        'lng': location['lng']
+    }
+
+    emit('update_user_locations', list(user_locations.values()), broadcast=True)
 
 @socketio.on('get_user_id')
 def handle_get_user_id():

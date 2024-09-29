@@ -12,6 +12,16 @@ function updateImage(category, selectedColor) {
         }
 }
 
+function selectFirstBody() {
+    const radiosBody = document.querySelectorAll('input[name="body_type"]');
+    if (radiosBody.length > 0) {
+        const firstRadio = radiosBody[0];
+        firstRadio.checked = true;
+        firstRadio.dataset.wasChecked = 'true';
+        updateImage(firstRadio.dataset.category, firstRadio.id);
+    }
+}
+
 function handleRadioClick(event) {
     const category = this.dataset.category;
 
@@ -27,6 +37,10 @@ function handleRadioClick(event) {
     if (this.dataset.wasChecked === 'true') {
         this.checked = false;
         this.dataset.wasChecked = 'false';
+
+        if (category === 'color cuerpo') {
+            selectFirstBody();
+        }
     } 
     // Si no estaba seleccionado, marcar este radio y mostrar la nueva imagen
     else {
@@ -181,6 +195,7 @@ radiosPelos.forEach((radio) => {
 
 
 document.addEventListener('DOMContentLoaded', () => {
+    selectFirstBody();
     document.getElementById('guardar').addEventListener('click', () => {
 
         const images = document.querySelectorAll('.image-container img');

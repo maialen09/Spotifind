@@ -4,7 +4,9 @@
     <title>Mapa de mi ubicación actual</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA4HCsv_ZjI4YqEbTNOxYLiexg_77bwOXM"></script>
+    <!-- Cargar la API de Google Maps de forma asíncrona con callback -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCyyyFvScvEJiM7ycNxXFtTkASQQffKpM0&callback=initMap"></script>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <style>
       #map {
         height: 100%;
@@ -19,14 +21,19 @@
   <body>
     <div id="map"></div>
     <script>
+      const socket = io('https://mt.spotifind.eus');
+
+      let map;
+      let markers = {}; // Almacenar los marcadores de los usuarios conectados
+
       function initMap() {
-        // Crear el mapa inicialmente
-        var map = new google.maps.Map(document.getElementById('map'), {
+        // Crear el mapa con una ubicación predeterminada
+        map = new google.maps.Map(document.getElementById('map'), {
           center: { lat: -34.397, lng: 150.644 },
-          zoom: 6
+          zoom: 2
         });
 
-        // Intenta obtener la ubicación del usuario
+        // Intentar obtener la ubicación del usuario
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
             function(position) {
@@ -35,39 +42,79 @@
                 lng: position.coords.longitude
               };
 
-              // Centra el mapa en la ubicación del usuario
+              // Emitir la ubicación del usuario al servidor
+              socket.emit('user-location', pos);
+
+              // Centrar el mapa en la ubicación del usuario
               map.setCenter(pos);
               map.setZoom(14);
 
-              // Añade un marcador en la ubicación del usuario
-              var marker = new google.maps.Marker({
-                position: pos,
-                map: map,
-                title: 'Estás aquí'
-              });
+              // Añadir marcador en la ubicación del usuario
+              addMarker(pos, 'Tu ubicación');
             },
             function() {
               handleLocationError(true, map.getCenter());
             }
           );
         } else {
-          // El navegador no soporta Geolocalización
+          // Si el navegador no soporta geolocalización
           handleLocationError(false, map.getCenter());
         }
+
+        // Manejar la actualización de ubicaciones de otros usuarios
+        socket.on('update_user_locations', function(locations) {
+          locations.forEach(location => {
+            if (markers[location.userId]) {
+              // Actualizar la posición de un marcador existente
+              markers[location.userId].setPosition(new google.maps.LatLng(location.lat, location.lng));
+            } else {
+              // Crear un nuevo marcador si no existe
+              const marker = new google.maps.Marker({
+                position: { lat: location.lat, lng: location.lng },
+                map: map,
+                title: `Usuario: ${location.userId}`
+              });
+              markers[location.userId] = marker;
+            }
+          });
+        });
       }
 
+      // Función para manejar errores de geolocalización
       function handleLocationError(browserHasGeolocation, pos) {
         var infoWindow = new google.maps.InfoWindow({
           position: pos,
           content: browserHasGeolocation
-            ? 'Error: El servicio de Geolocalización falló.'
-            : 'Error: Tu navegador no soporta Geolocalización.'
+            ? 'Error: El servicio de geolocalización falló.'
+            : 'Error: Tu navegador no soporta geolocalización.'
         });
         infoWindow.open(map);
       }
 
-      // Esperar a que la página cargue completamente antes de inicializar el mapa
-      window.onload = initMap;
+      // Función para añadir un marcador al mapa
+      function addMarker(location, title) {
+        new google.maps.Marker({
+          position: location,
+          map: map,
+          title: title
+        });
+      }
+
+      // Función para eliminar un marcador del mapa 
+      function removeMarker(userId){
+        if (markers[userId]){
+          markers[userId].setMap(null); // eliminarlo del mapa
+          delete markers[userId]; // eliminarlo del diccionario
+        }
+      }
+
+      //socket.on('remove_user_location', function(userId){
+
+        //removeMarker(userId);
+
+      //});
+
+
     </script>
   </body>
 </html>
