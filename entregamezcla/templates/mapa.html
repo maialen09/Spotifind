@@ -107,17 +107,17 @@
               markers[location.userId] = marker;
     
               const contentString = `
-  <div id="content" style="width: 150px; font-size: 12px;">
-    <div id="siteNotice"></div>
-    <h1 id="firstHeading" class="firstHeading" style="font-size: 14px; margin-bottom: 5px;">Información del usuario</h1>
-    <div id="bodyContent" style="padding: 5px;">
-      <p><b>User:</b> ${location.username}</p>
-      <p><b>Artist:</b> ${location.artist}</p>
-      <p><b>Track:</b> ${location.song}</p>
-      <p><a href="https://open.spotify.com/user/${location.userId}" target="_blank" style="font-size: 10px;">Ver perfil</a></p>
-    </div>
-  </div>`;
-    
+            <div id="content" style="width: 150px; font-size: 12px;">
+              <div id="siteNotice"></div>
+              <h1 id="firstHeading" class="firstHeading" style="font-size: 14px; margin-bottom: 5px;">Información del usuario</h1>
+              <div id="bodyContent" style="padding: 5px;">
+                <p><b>User:</b> ${location.username}</p>
+                <p><b>Artist:</b> ${location.artist}</p>
+                <p><b>Track:</b> ${location.song}</p>
+                <p><a href="https://open.spotify.com/user/${location.userId}" target="_blank" style="font-size: 10px;">Ver perfil</a></p>
+              </div>
+            </div>`;
+
               const infowindow = new google.maps.InfoWindow({
                 content: contentString,
                 ariaLabel: "Información Usuario",
