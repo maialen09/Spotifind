@@ -381,7 +381,9 @@ def handle_disconnect():
         del chat_conexions[session.get('id')]
     global imagenes
     imagenes = [imagen for imagen in imagenes if imagen['id'] != session.get('id')]
-    ##emit('remove_user_location', session.get('id'), broadcast=True)
+
+    del user_locations[session.get('id')]
+    emit('remove_user_location', session.get('id'), broadcast=True)
     emit('update_user_list', list(imagenes), broadcast=True)
   
 @socketio.on('user-location')

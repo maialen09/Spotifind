@@ -63,9 +63,41 @@
         socket.on('update_user_locations', function(locations) {
           locations.forEach(function(location) {
             if (!markers[location.userId]) {
+
+              let lat = location.lat;
+              let lng = location.lng;
+              let tooClose = false;
+
+              for (const userId in markers) {
+        if (markers.hasOwnProperty(userId)) {
+          const existingMarker = markers[userId].position;
+          const distance = haversineDistance(lat, lng, existingMarker.lat, existingMarker.lng);
+
+          // Si la distancia es menor a 10 metros, marcarlo como "muy cerca"
+          if (distance < 10) {
+            tooClose = true;
+            break;
+          }
+        }
+      }
+
+      if (tooClose) {
+        // Si está demasiado cerca de otro marcador, moverlo un poco
+        const offset = 0.0001; // Desplazamiento pequeño en grados (aprox. 11 metros)
+        lat += offset;
+        lng += offset;
+      }
+
+
+
+              // comprobar antes si ya hay una persona en la misma posicion para moverlo 
+              // tendrá que ser un bucle que vaya comprobando todas las posiciones hasta que encuentre una en la que no haya nadie?
+              
+              
+
               // Crear un nuevo marcador si no existe
               const marker = new google.maps.marker.AdvancedMarkerElement({
-                position: { lat: location.lat, lng: location.lng },
+                position: { lat: lat, lng: lng },
                 map: map,
                 title: `Usuario: ${location.userId}`,
                 content: document.createElement('div')
@@ -75,16 +107,16 @@
               markers[location.userId] = marker;
     
               const contentString = `
-                <div id="content">
-                  <div id="siteNotice"></div>
-                  <h1 id="firstHeading" class="firstHeading">Información del usuario</h1>
-                  <div id="bodyContent">
-                    <p><b>User:</b> ${location.username}</p>
-                    <p><b>Artist:</b> ${location.artist}</p>
-                    <p><b>Track:</b> ${location.song}</p>
-                    <p>Perfil de Spotify: <a href="https://open.spotify.com/user/${location.userId}">Ver perfil</a></p>
-                  </div>
-                </div>`;
+  <div id="content" style="width: 150px; font-size: 12px;">
+    <div id="siteNotice"></div>
+    <h1 id="firstHeading" class="firstHeading" style="font-size: 14px; margin-bottom: 5px;">Información del usuario</h1>
+    <div id="bodyContent" style="padding: 5px;">
+      <p><b>User:</b> ${location.username}</p>
+      <p><b>Artist:</b> ${location.artist}</p>
+      <p><b>Track:</b> ${location.song}</p>
+      <p><a href="https://open.spotify.com/user/${location.userId}" target="_blank" style="font-size: 10px;">Ver perfil</a></p>
+    </div>
+  </div>`;
     
               const infowindow = new google.maps.InfoWindow({
                 content: contentString,
@@ -138,6 +170,36 @@
           }
         });
       }
+
+    socket.on('remove_user_location', function(id){
+
+      //Cuando se desconecte un usuario eliminarlo de todos los mapas 
+      if (markers[id]) {
+        // Eliminar el marcador del mapa
+        markers[id].setMap(null);
+        // Eliminar el marcador de la lista de marcadores
+        delete markers[id];
+      }
+
+
+
+    });
+
+    function haversineDistance(lat1, lng1, lat2, lng2) {
+        const R = 6371000; // Radio de la Tierra en metros
+        const toRadians = angle => (angle * Math.PI) / 180;
+
+        const dLat = toRadians(lat2 - lat1);
+        const dLng = toRadians(lng2 - lng1);
+
+        const a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+          Math.sin(dLng / 2) * Math.sin(dLng / 2);
+
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c; // Distancia en metros
+    }
     
       // Función para manejar errores de geolocalización
       function handleLocationError(browserHasGeolocation, pos) {
