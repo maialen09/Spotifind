@@ -372,6 +372,7 @@ def handle_connect(auth=None):
             new_dic2 = {'id': session.get('id'),'usuario': usuario, 'imagen' : img_base64, 'track': session.get('track'), 'artist': session.get('artist')}
             imagenes.append(new_dic2)
             emit('update_user_list', list(imagenes), broadcast=True)
+           
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -385,19 +386,20 @@ def handle_disconnect():
   
 @socketio.on('user-location')
 def handle_user_location(location):
-    user_id = session.get('id')
-    user_locations[user_id] = {
+        user_id = session.get('id')
+        user_locations[user_id] = {
 
-        'userId' : user_id,
-        'lat': location['lat'],
-        'lng': location['lng'],
-        'img': session.get('imagen'),
-        'username': session.get('usuario'),
-        'song': session.get('track'),
-        'artist': session.get('artist')
-    }
-
-    emit('update_user_locations', list(user_locations.values()), broadcast=True)
+            'userId' : user_id,
+            'lat': location['lat'],
+            'lng': location['lng'],
+            'img': session.get('imagen'),
+            'username': session.get('usuario'),
+            'song': session.get('track'),
+            'artist': session.get('artist')
+        }
+        
+        emit('update_user_locations', list(user_locations.values()), to=request.sid)
+        emit('new_user_location', user_locations[user_id], broadcast=True)
 
 @socketio.on('get_user_id')
 def handle_get_user_id():

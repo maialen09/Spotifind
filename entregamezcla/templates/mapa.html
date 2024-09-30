@@ -22,10 +22,10 @@
     <div id="map"></div>
     <script>
       const socket = io('https://mt.spotifind.eus');
-
+    
       let map;
       let markers = {}; // Almacenar los marcadores de los usuarios conectados
-
+    
       function initMap() {
         // Crear el mapa con una ubicación predeterminada
         map = new google.maps.Map(document.getElementById('map'), {
@@ -33,7 +33,7 @@
           zoom: 2,
           mapId: 'c2d3cb2adaa07c45'
         });
-
+    
         // Intentar obtener la ubicación del usuario
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
@@ -42,16 +42,13 @@
                 lat: position.coords.latitude,
                 lng: position.coords.longitude
               };
-
+    
               // Emitir la ubicación del usuario al servidor
               socket.emit('user-location', pos);
-
+    
               // Centrar el mapa en la ubicación del usuario
               map.setCenter(pos);
               map.setZoom(14);
-
-              // Añadir marcador en la ubicación del usuario
-              //addMarker(pos, 'Tu ubicación');
             },
             function() {
               handleLocationError(true, map.getCenter());
@@ -61,37 +58,87 @@
           // Si el navegador no soporta geolocalización
           handleLocationError(false, map.getCenter());
         }
-
-        // Manejar la actualización de ubicaciones de otros usuarios
+    
+        // Manejar tanto las ubicaciones iniciales de los usuarios conectados como las actualizaciones
         socket.on('update_user_locations', function(locations) {
-          locations.forEach(location => {
-            if (markers[location.userId]) {
-              // Actualizar la posición de un marcador existente
-              markers[location.userId].setPosition(new google.maps.LatLng(location.lat, location.lng));
-            } else {
+          locations.forEach(function(location) {
+            if (!markers[location.userId]) {
               // Crear un nuevo marcador si no existe
               const marker = new google.maps.marker.AdvancedMarkerElement({
                 position: { lat: location.lat, lng: location.lng },
                 map: map,
                 title: `Usuario: ${location.userId}`,
                 content: document.createElement('div')
-                
-
               });
+              
               marker.content.innerHTML = `<img src="data:image/png;base64,${location.img}" style="width: 60px; height: 60px;">`;
               markers[location.userId] = marker;
-
-              
+    
+              const contentString = `
+                <div id="content">
+                  <div id="siteNotice"></div>
+                  <h1 id="firstHeading" class="firstHeading">Información del usuario</h1>
+                  <div id="bodyContent">
+                    <p><b>User:</b> ${location.username}</p>
+                    <p><b>Artist:</b> ${location.artist}</p>
+                    <p><b>Track:</b> ${location.song}</p>
+                    <p>Perfil de Spotify: <a href="https://open.spotify.com/user/${location.userId}">Ver perfil</a></p>
+                  </div>
+                </div>`;
+    
+              const infowindow = new google.maps.InfoWindow({
+                content: contentString,
+                ariaLabel: "Información Usuario",
+              });
+    
+              marker.addListener("click", () => {
+                infowindow.open(map, marker);
+              });
+            } else {
+              // Actualizar la posición de un marcador existente si ya existe
+              markers[location.userId].setPosition(new google.maps.LatLng(location.lat, location.lng));
             }
           });
         });
+    
+        // Manejar la llegada de nuevos usuarios
+        socket.on('new_user_location', function(location) {
+          if (!markers[location.userId]) {
+            // Crear un nuevo marcador si no existe
+            const marker = new google.maps.marker.AdvancedMarkerElement({
+              position: { lat: location.lat, lng: location.lng },
+              map: map,
+              title: `Usuario: ${location.userId}`,
+              content: document.createElement('div')
+            });
+            
+            marker.content.innerHTML = `<img src="data:image/png;base64,${location.img}" style="width: 60px; height: 60px;">`;
+            markers[location.userId] = marker;
+    
+            const contentString = `
+              <div id="content">
+                <div id="siteNotice"></div>
+                <h1 id="firstHeading" class="firstHeading">Información del usuario</h1>
+                <div id="bodyContent">
+                  <p><b>User:</b> ${location.username}</p>
+                  <p><b>Artist:</b> ${location.artist}</p>
+                  <p><b>Track:</b> ${location.song}</p>
+                  <p>Perfil de Spotify: <a href="https://open.spotify.com/user/${location.userId}">Ver perfil</a></p>
+                </div>
+              </div>`;
+    
+            const infowindow = new google.maps.InfoWindow({
+              content: contentString,
+              ariaLabel: "Información Usuario",
+            });
+    
+            marker.addListener("click", () => {
+              infowindow.open(map, marker);
+            });
+          }
+        });
       }
-
-     
-
-
-
-
+    
       // Función para manejar errores de geolocalización
       function handleLocationError(browserHasGeolocation, pos) {
         var infoWindow = new google.maps.InfoWindow({
@@ -102,31 +149,8 @@
         });
         infoWindow.open(map);
       }
-
-      // Función para añadir un marcador al mapa
-      function addMarker(location, title) {
-        new google.maps.Marker({
-          position: location,
-          map: map,
-          title: title
-        });
-      }
-
-      // Función para eliminar un marcador del mapa 
-      function removeMarker(userId){
-        if (markers[userId]){
-          markers[userId].setMap(null); // eliminarlo del mapa
-          delete markers[userId]; // eliminarlo del diccionario
-        }
-      }
-
-      //socket.on('remove_user_location', function(userId){
-
-        //removeMarker(userId);
-
-      //});
-
-
     </script>
+    
+    
   </body>
 </html>
