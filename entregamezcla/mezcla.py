@@ -367,7 +367,8 @@ def handle_connect(auth=None):
             usuario = session.get('usuario')
             img = obtener_imagen(session.get('id'))
             img_1 = img[0]  
-            img_base64 = base64.b64encode(img_1[-1]).decode('utf-8')    
+            img_base64 = base64.b64encode(img_1[-1]).decode('utf-8')
+            session['imagen'] = img_base64   
             new_dic2 = {'id': session.get('id'),'usuario': usuario, 'imagen' : img_base64, 'track': session.get('track'), 'artist': session.get('artist')}
             imagenes.append(new_dic2)
             emit('update_user_list', list(imagenes), broadcast=True)
@@ -389,7 +390,11 @@ def handle_user_location(location):
 
         'userId' : user_id,
         'lat': location['lat'],
-        'lng': location['lng']
+        'lng': location['lng'],
+        'img': session.get('imagen'),
+        'username': session.get('usuario'),
+        'song': session.get('track'),
+        'artist': session.get('artist')
     }
 
     emit('update_user_locations', list(user_locations.values()), broadcast=True)
