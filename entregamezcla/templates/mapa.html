@@ -2,6 +2,8 @@
 <html lang="en">
   <head>
     <title>Mapa de mi ubicación actual</title>
+    <link rel="stylesheet" href="../static/mapa.css">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Cargar la API de Google Maps de forma asíncrona con callback -->
@@ -25,6 +27,7 @@
     
       let map;
       let markers = {}; // Almacenar los marcadores de los usuarios conectados
+      let activeChats = {};
     
       function initMap() {
         // Crear el mapa con una ubicación predeterminada
@@ -60,15 +63,17 @@
         }
     
         // Manejar tanto las ubicaciones iniciales de los usuarios conectados como las actualizaciones
-        socket.on('update_user_locations', function(locations) {
-          locations.forEach(function(location) {
-            if (!markers[location.userId]) {
+       
+      }
+      socket.on('update_user_locations', function(locations) {
+  locations.forEach(function(location) {
+    if (!markers[location.userId]) {
 
-              let lat = location.lat;
-              let lng = location.lng;
-              let tooClose = false;
+      let lat = location.lat;
+      let lng = location.lng;
+      let tooClose = false;
 
-              for (const userId in markers) {
+      for (const userId in markers) {
         if (markers.hasOwnProperty(userId)) {
           const existingMarker = markers[userId].position;
           const distance = haversineDistance(lat, lng, existingMarker.lat, existingMarker.lng);
@@ -88,88 +93,223 @@
         lng += offset;
       }
 
+      // Crear un nuevo marcador si no existe
+      const marker = new google.maps.marker.AdvancedMarkerElement({
+        position: { lat: lat, lng: lng },
+        map: map,
+        title: `Usuario: ${location.userId}`,  // CORRECCIÓN: backticks aquí
+        content: document.createElement('div')
+      });
 
+      marker.content.innerHTML = `<img src="data:image/png;base64,${location.img}" style="width: 60px; height: 60px;">`;  // CORRECCIÓN: backticks aquí
+      markers[location.userId] = marker;
 
-              // comprobar antes si ya hay una persona en la misma posicion para moverlo 
-              // tendrá que ser un bucle que vaya comprobando todas las posiciones hasta que encuentre una en la que no haya nadie?
-              
-              
+      const contentString = 
+        `<div id="content" style="width: 150px; font-size: 12px;">
+          <div id="siteNotice"></div>
+          <h1 id="firstHeading" class="firstHeading" style="font-size: 14px; margin-bottom: 5px;">Información del usuario</h1>
+          <div id="bodyContent" style="padding: 5px;">
+            <p><b>User:</b> ${location.username}</p>
+            <p><b>Artist:</b> ${location.artist}</p>
+            <p><b>Track:</b> ${location.song}</p>
+            <p><a href="https://open.spotify.com/user/${location.userId}" target="_blank" style="font-size: 10px;">Ver perfil</a></p>
+            <button id="button-${location.userId}" style="font-size: 10px;">Abrir Chat</button>           
+            </div>
+        </div>`;
 
-              // Crear un nuevo marcador si no existe
-              const marker = new google.maps.marker.AdvancedMarkerElement({
-                position: { lat: lat, lng: lng },
-                map: map,
-                title: `Usuario: ${location.userId}`,
-                content: document.createElement('div')
-              });
-              
-              marker.content.innerHTML = `<img src="data:image/png;base64,${location.img}" style="width: 60px; height: 60px;">`;
-              markers[location.userId] = marker;
-    
-              const contentString = `
-            <div id="content" style="width: 150px; font-size: 12px;">
-              <div id="siteNotice"></div>
-              <h1 id="firstHeading" class="firstHeading" style="font-size: 14px; margin-bottom: 5px;">Información del usuario</h1>
-              <div id="bodyContent" style="padding: 5px;">
-                <p><b>User:</b> ${location.username}</p>
-                <p><b>Artist:</b> ${location.artist}</p>
-                <p><b>Track:</b> ${location.song}</p>
-                <p><a href="https://open.spotify.com/user/${location.userId}" target="_blank" style="font-size: 10px;">Ver perfil</a></p>
-              </div>
-            </div>`;
+      const infowindow = new google.maps.InfoWindow({
+        content: contentString,
+        ariaLabel: "Información Usuario",
+      });
 
-              const infowindow = new google.maps.InfoWindow({
-                content: contentString,
-                ariaLabel: "Información Usuario",
-              });
-    
-              marker.addListener("click", () => {
-                infowindow.open(map, marker);
-              });
-            } else {
-              // Actualizar la posición de un marcador existente si ya existe
-              markers[location.userId].setPosition(new google.maps.LatLng(location.lat, location.lng));
-            }
-          });
+      marker.addListener("click", () => {
+        infowindow.open(map, marker);
+
+        google.maps.event.addListenerOnce(infowindow, 'domready', () => {
+        const openChatButton = document.getElementById(`button-${location.userId}`);
+        openChatButton.addEventListener('click', () => {
+          openChat(location.userId);
         });
-    
-        // Manejar la llegada de nuevos usuarios
-        socket.on('new_user_location', function(location) {
-          if (!markers[location.userId]) {
-            // Crear un nuevo marcador si no existe
-            const marker = new google.maps.marker.AdvancedMarkerElement({
-              position: { lat: location.lat, lng: location.lng },
-              map: map,
-              title: `Usuario: ${location.userId}`,
-              content: document.createElement('div')
-            });
-            
-            marker.content.innerHTML = `<img src="data:image/png;base64,${location.img}" style="width: 60px; height: 60px;">`;
-            markers[location.userId] = marker;
-    
-            const contentString = `
-              <div id="content">
-                <div id="siteNotice"></div>
-                <h1 id="firstHeading" class="firstHeading">Información del usuario</h1>
-                <div id="bodyContent">
-                  <p><b>User:</b> ${location.username}</p>
-                  <p><b>Artist:</b> ${location.artist}</p>
-                  <p><b>Track:</b> ${location.song}</p>
-                  <p>Perfil de Spotify: <a href="https://open.spotify.com/user/${location.userId}">Ver perfil</a></p>
-                </div>
-              </div>`;
-    
-            const infowindow = new google.maps.InfoWindow({
-              content: contentString,
-              ariaLabel: "Información Usuario",
-            });
-    
-            marker.addListener("click", () => {
-              infowindow.open(map, marker);
-            });
-          }
-        });
+      });
+      });
+    } else {
+      // Actualizar la posición de un marcador existente si ya existe
+      markers[location.userId].setPosition(new google.maps.LatLng(location.lat, location.lng));
+    }
+  });
+});
+socket.on('new_user_location', function(location) {
+  if (!markers[location.userId]) {
+
+    let lat = location.lat;
+    let lng = location.lng;
+    let tooClose = false;
+
+    for (const userId in markers) {
+      if (markers.hasOwnProperty(userId)) {
+        const existingMarker = markers[userId].position;
+        const distance = haversineDistance(lat, lng, existingMarker.lat, existingMarker.lng);
+
+        // Si la distancia es menor a 10 metros, marcarlo como "muy cerca"
+        if (distance < 10) {
+          tooClose = true;
+          break;
+        }
       }
+    }
+
+    if (tooClose) {
+      // Si está demasiado cerca de otro marcador, moverlo un poco
+      const offset = 0.0001; // Desplazamiento pequeño en grados (aprox. 11 metros)
+      lat += offset;
+      lng += offset;
+    }
+
+    // Crear un nuevo marcador si no existe
+    const marker = new google.maps.marker.AdvancedMarkerElement({
+      position: { lat: lat, lng: lng },
+      map: map,
+      title: `Usuario: ${location.userId}`,  // CORRECCIÓN: backticks aquí
+      content: document.createElement('div')
+    });
+
+    marker.content.innerHTML = `<img src="data:image/png;base64,${location.img}" style="width: 60px; height: 60px;">`;  // CORRECCIÓN: backticks aquí
+    markers[location.userId] = marker;
+
+    const contentString = 
+      `<div id="content" style="width: 150px; font-size: 12px;">
+        <div id="siteNotice"></div>
+        <h1 id="firstHeading" class="firstHeading" style="font-size: 14px; margin-bottom: 5px;">Información del usuario</h1>
+        <div id="bodyContent" style="padding: 5px;">
+          <p><b>User:</b> ${location.username}</p>
+          <p><b>Artist:</b> ${location.artist}</p>
+          <p><b>Track:</b> ${location.song}</p>
+          <p><a href="https://open.spotify.com/user/${location.userId}" target="_blank" style="font-size: 10px;">Ver perfil</a></p>
+          <button id="button-${location.userId}" style="font-size: 10px;">Abrir Chat</button>
+          </div>
+      </div>`;
+
+    const infowindow = new google.maps.InfoWindow({
+      content: contentString,
+      ariaLabel: "Información Usuario",
+    });
+
+    marker.addListener("click", () => {
+      infowindow.open(map, marker);
+
+      google.maps.event.addListenerOnce(infowindow, 'domready', () => {
+        const openChatButton = document.getElementById(`button-${location.userId}`);
+        openChatButton.addEventListener('click', () => {
+          openChat(location.userId);
+        });
+      });
+    });
+  }
+});
+
+function openChat(userId){
+
+socket.emit('get_user_id');
+
+
+new Promise((resolve) => {
+socket.once('receive_user_id', function(userId) {
+sessionStorage.setItem('user_id', userId); // Guardar el ID en el almacenamiento de sesión
+resolve(userId);
+});
+}).then((currentUserId) => {
+const roomName = generateRoomName(currentUserId, userId);
+console.log(roomName);
+
+// Si ya existe una ventana de chat abierta para esta sala, no la volvemos a abrir
+if (activeChats[roomName]) {
+return;
+}
+
+// Crear la ventana de chat
+const chatWindow = document.createElement('div');
+chatWindow.classList.add('chat-window');
+chatWindow.innerHTML = `
+<div class="chat-header">
+Chat con el usuario ${userId}
+<button class="close-chat-btn" onclick="closeChat('${roomName}')">&times;</button>
+</div>
+<div class="chat-messages" id="chat-messages-${roomName}"></div>
+<input type="text" id="chat-input-${roomName}" placeholder="Escribe un mensaje..." />
+<button onclick="sendMessage('${roomName}', '${userId}')">Enviar</button>
+`;
+
+document.body.appendChild(chatWindow);
+activeChats[roomName] = chatWindow;
+
+// Unirse a la sala de chat
+socket.emit('join_room', { room_name: roomName, user_id: userId });
+
+// Cargar los mensajes guardados desde la base de datos
+socket.emit('load_chat_history', roomName);
+});
+
+}
+
+       // Función para generar el nombre de la sala único basado en los dos usuarios
+       function generateRoomName(user1, user2) {
+    return [user1, user2].sort().join('-'); // Asegura que el orden de los usuarios no importe
+}
+
+
+// Función para enviar un mensaje
+function sendMessage(roomName, userId) {
+    const messageInput = document.getElementById(`chat-input-${roomName}`);
+    const message = messageInput.value;
+
+    if (message.trim()) {
+        socket.emit('send_message', {
+            room_name: roomName,
+            message: message,
+            user_id: userId
+        });
+        messageInput.value = ''; // Limpiar el campo de entrada
+    }
+}
+
+// Escuchar mensajes entrantes
+socket.on('receive_message', function(data) {
+    const current = sessionStorage.getItem('user_id');
+    const chatMessages = document.getElementById(`chat-messages-${data.room_name}`);
+    if (chatMessages) {
+        const messageClass = data.user_id === current ? 'chat-message-user' : 'chat-message-other';
+        chatMessages.innerHTML += `
+            <div class="${messageClass}">
+                <strong>${data.username}:</strong> ${data.message}
+            </div>
+        `;
+    }
+});
+
+// Recibir historial de chat cargado
+socket.on('chat_history', function(data) {
+    const chatMessages = document.getElementById(`chat-messages-${data.room_name}`);
+    const current = sessionStorage.getItem('user_id');
+
+    if (chatMessages) {
+        data.messages.forEach(msg => {
+            const [username, message, userId] = msg;
+            imprimir(userId); 
+            const messageClass = userId === current ? 'chat-message-user' : 'chat-message-other';
+            chatMessages.innerHTML += `
+                <div class="${messageClass}">
+                    <strong>${username}:</strong> ${message}
+                </div>
+            `;
+        });
+    }
+});
+
+        socket.on('receive_user_id', function(userId) {
+                console.log('ID del usuario actual:', userId);
+                sessionStorage.setItem('user_id', userId); // Guardar el ID en el almacenamiento de sesión
+        });
+
 
     socket.on('remove_user_location', function(id){
 
@@ -184,6 +324,25 @@
 
 
     });
+
+    function closeChat(roomName){
+            const chatWindow = activeChats[roomName]
+            if (chatWindow){
+                chatWindow.remove();
+                delete activeChats[roomName];
+            }
+        }
+
+
+        socket.on('imprimir', function(data){
+             imprimir(data);
+
+
+});
+
+function imprimir(data){
+  console.log(data);
+}
 
     function haversineDistance(lat1, lng1, lat2, lng2) {
         const R = 6371000; // Radio de la Tierra en metros

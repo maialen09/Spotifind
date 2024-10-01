@@ -382,7 +382,10 @@ def handle_disconnect():
     global imagenes
     imagenes = [imagen for imagen in imagenes if imagen['id'] != session.get('id')]
 
-    del user_locations[session.get('id')]
+    emit('imprimir', user_locations)
+    user_id = session.get('id') 
+    if user_id in user_locations:
+        del user_locations[user_id]
     emit('remove_user_location', session.get('id'), broadcast=True)
     emit('update_user_list', list(imagenes), broadcast=True)
   
