@@ -5,8 +5,10 @@
     border-radius: 10px;
     background-color: #E8F0FE; /* Fondo azul claro */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    position: relative;
-    margin: 20px;
+    position: fixed; /* Cambiado de relative a fixed */
+    bottom: 20px; /* Alineado en la parte inferior de la pantalla */
+    right: 20px; /* Alineado a la derecha de la pantalla */
+    z-index: 1000; /* Asegura que la ventana esté por encima de otros elementos */
     padding: 10px;
     display: flex;
     flex-direction: column;

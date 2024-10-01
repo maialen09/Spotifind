@@ -9,6 +9,7 @@
     <!-- Cargar la API de Google Maps de forma asíncrona con callback -->
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCyyyFvScvEJiM7ycNxXFtTkASQQffKpM0&libraries=marker&callback=initMap"></script>
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+   
     <style>
       #map {
         height: 100%;
@@ -219,7 +220,7 @@ resolve(userId);
 });
 }).then((currentUserId) => {
 const roomName = generateRoomName(currentUserId, userId);
-console.log(roomName);
+
 
 // Si ya existe una ventana de chat abierta para esta sala, no la volvemos a abrir
 if (activeChats[roomName]) {
@@ -293,8 +294,7 @@ socket.on('chat_history', function(data) {
 
     if (chatMessages) {
         data.messages.forEach(msg => {
-            const [username, message, userId] = msg;
-            imprimir(userId); 
+            const [username, message, userId] = msg; 
             const messageClass = userId === current ? 'chat-message-user' : 'chat-message-other';
             chatMessages.innerHTML += `
                 <div class="${messageClass}">
