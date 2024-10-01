@@ -7,7 +7,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Cargar la API de Google Maps de forma asíncrona con callback -->
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCyyyFvScvEJiM7ycNxXFtTkASQQffKpM0&libraries=marker&callback=initMap"></script>
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
    
     <style>
@@ -23,6 +22,14 @@
   </head>
   <body>
     <div id="map"></div>
+    <div class="chat-toggle">
+      <button id="toggle-chat-list" class="chat-icon">💬</button> <!-- Puedes usar un icono de chat aquí -->
+  </div>
+  <div id="chat-list-container" class="chat-list-container hidden">
+    <button id="close-chat-list" class="close-chat-list-btn">&times;</button> 
+    <ul id="chat-list"></ul>
+  </div>
+  
     <script>
       const socket = io('https://mt.spotifind.eus');
     
@@ -370,6 +377,73 @@ function imprimir(data){
         });
         infoWindow.open(map);
       }
+      document.getElementById('toggle-chat-list').addEventListener('click', function() {
+    const chatListContainer = document.getElementById('chat-list-container');
+    chatListContainer.classList.toggle('visible');  // Mostrar o ocultar la lista de chats
+    chatListContainer.classList.toggle('hidden');
+});
+
+document.getElementById('close-chat-list').addEventListener('click', function() {
+    const chatListContainer = document.getElementById('chat-list-container');
+    chatListContainer.classList.add('hidden');  // Ocultar la lista de chats
+    chatListContainer.classList.remove('visible');
+});
+
+
+      
+socket.on('user_chats', function(data) {
+    const chatList = document.getElementById('chat-list'); // Un contenedor en tu HTML donde mostrar los chats
+    chatList.innerHTML = ''; // Limpiar la lista actual
+
+    data.rooms.forEach(function(roomName) {
+        const li = document.createElement('li');
+        li.textContent = `Chat Room: ${roomName}`;
+        li.classList.add('chat-room-item');
+        li.addEventListener('click', function() {
+            openChatFromHistory(roomName);
+        });
+
+        chatList.appendChild(li);
+    });
+});
+
+function openChatFromHistory(roomName) {
+    // Si ya existe una ventana de chat abierta para esta sala, no la volvemos a abrir
+    if (activeChats[roomName]) {
+        return;
+    }
+
+    // Crear la ventana de chat
+    const chatWindow = document.createElement('div');
+    chatWindow.classList.add('chat-window');
+    chatWindow.innerHTML = 
+        `<div class="chat-header">
+            Sala de chat ${roomName}
+            <button class="close-chat-btn" onclick="closeChat('${roomName}')">&times;</button>
+        </div>
+        <div class="chat-messages" id="chat-messages-${roomName}"></div>
+        <input type="text" id="chat-input-${roomName}" placeholder="Escribe un mensaje..." />
+        <button onclick="sendMessage('${roomName}', null)">Enviar</button>`;
+
+    document.body.appendChild(chatWindow);
+    activeChats[roomName] = chatWindow;
+
+    // Unirse a la sala de chat
+    socket.emit('join_room', { room_name: roomName, user_id: sessionStorage.getItem('user_id') });
+
+    // Cargar los mensajes guardados desde la base de datos
+    socket.emit('load_chat_history', roomName);
+}
+
+
+      document.addEventListener('DOMContentLoaded', function() {
+    // Pedir los chats previos del usuario al servidor
+    socket.emit('load_user_chats');
+    const script = document.createElement('script');
+  script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCyyyFvScvEJiM7ycNxXFtTkASQQffKpM0&libraries=marker&callback=initMap";
+  document.head.appendChild(script);
+});
+     
     </script>
     
     

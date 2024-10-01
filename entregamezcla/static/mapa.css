@@ -94,3 +94,59 @@
 .chat-input button:hover {
     background-color: #0056b3; /* Azul más oscuro */
 }
+
+/* Botón o ícono para abrir la lista de chats */
+.chat-toggle {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+}
+
+.chat-icon {
+    font-size: 30px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    color: #5533ff;
+}
+
+/* Contenedor de la lista de chats */
+.chat-list-container {
+    width: 300px;
+    height: 100vh;
+    background-color: #5533ff;
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+}
+
+/* Ocultar la lista de chats inicialmente */
+.hidden {
+    transform: translateX(-100%);
+}
+
+/* Mostrar la lista de chats cuando se active */
+.visible {
+    transform: translateX(0);
+}
+
+/* Botón de cerrar la lista de chats */
+.close-chat-list-btn {
+    background-color: transparent;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.chat-list-container ul {
+    margin-top: 40px; /* Para evitar que la lista se solape con el botón de cerrar */
+}
+
