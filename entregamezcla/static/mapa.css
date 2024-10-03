@@ -150,3 +150,60 @@
     margin-top: 40px; /* Para evitar que la lista se solape con el botón de cerrar */
 }
 
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #ff5c5c;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.close-btn:hover {
+    background-color: #ff1c1c;
+}
+
+#track-info, #artist-info {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 100;
+    max-width: 300px;
+}
+
+#track-info {
+    top: 20px;
+    right: 60px;
+}
+
+#artist-info {
+    top: 20px;
+    right: 120px;
+}
+
+img {
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+}
+
+h2, h3 {
+    margin: 10px 0;
+    font-family: Arial, sans-serif;
+}
+
+h2 {
+    font-size: 18px;
+}
+
+h3 {
+    font-size: 16px;
+}

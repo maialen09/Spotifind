@@ -179,6 +179,7 @@ socket.on('track', function(track) {
         // Si hay coincidencia, mostrar la imagen, nombre y artista
         trackContainer.innerHTML = `
             <div>
+                <button class="close-btn" onclick="closeWindow('track-info')">X</button>
                 <img src="${track.image_url}" alt="Portada del Álbum" style="width: 200px; height: 200px;">
                 <h2>Canción: ${track.name}</h2>
                 <h3>Artista: ${track.artist}</h3>
@@ -188,6 +189,7 @@ socket.on('track', function(track) {
         // Si no hay coincidencia, mostrar mensaje
         trackContainer.innerHTML = `
             <div>
+                <button class="close-btn" onclick="closeWindow('track-info')">X</button>
                 <h2>${track.message}</h2>
             </div>
         `;
@@ -201,6 +203,7 @@ socket.on('artist', function(artist) {
         // Si hay coincidencia, mostrar la imagen, nombre y artista
         artistContainer.innerHTML = `
             <div>
+                <button class="close-btn" onclick="closeWindow('artist-info')">X</button>
                 <img src="${artist.image_url}" alt="Portada del Álbum" style="width: 200px; height: 200px;">
                 <h2>Artista: ${artist.name}</h2>
             </div>
@@ -209,11 +212,18 @@ socket.on('artist', function(artist) {
         // Si no hay coincidencia, mostrar mensaje
         artistContainer.innerHTML = `
             <div>
+                <button class="close-btn" onclick="closeWindow('artist-info')">X</button>
                 <h2>${artist.message}</h2>
             </div>
         `;
     }
 });
+
+function closeWindow(id) {
+    const element = document.getElementById(id);
+    element.innerHTML = ''; 
+    
+}
 
 socket.on('song_update', function(data) {
     // Actualizar la interfaz con la nueva canción y artista
