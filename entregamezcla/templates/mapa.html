@@ -295,9 +295,8 @@ socket.on('new_user_location', function(location) {
         openChatButton.addEventListener('click', () => {
           openChat(location.userId);
         });
-      });
 
-      const cantanteBoton = document.getElementById(`button-cancion`);
+        const cantanteBoton = document.getElementById(`button-cancion`);
         cantanteBoton.addEventListener('click', () => {
           socket.emit('canciones_mas_escuchadas', location.userId);
             
@@ -309,6 +308,13 @@ socket.on('new_user_location', function(location) {
           socket.emit('cantante_en_comun', location.userId);
           
         });
+
+
+
+
+      });
+
+     
 
     });
   }
