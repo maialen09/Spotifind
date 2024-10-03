@@ -295,7 +295,9 @@ socket.on('imprimir' , function(data){
 
             console.log(data);
         }
-        socket.on('song_update', function(data) {
+
+        
+socket.on('song_update', function(data) {
     // Actualizar la interfaz con la nueva canción y artista
     let userElement = document.querySelector(`.persona-${data.user_id}`);
     if (userElement) {

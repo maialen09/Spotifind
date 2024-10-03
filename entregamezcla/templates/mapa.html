@@ -29,7 +29,14 @@
     <button id="close-chat-list" class="close-chat-list-btn">&times;</button> 
     <ul id="chat-list"></ul>
   </div>
-  
+  <div id="track-info">
+    <!-- Aquí se mostrará la información de la canción o el mensaje -->
+</div>
+
+<div id="artist-info">
+
+</div>
+
     <script>
       const socket = io('https://mt.spotifind.eus');
     
@@ -113,7 +120,7 @@
       markers[location.userId] = marker;
 
       const contentString = 
-        `<div id="content" style="width: 150px; font-size: 12px;">
+        `<div class="persona-${location.userId}" id="content" style="width: 150px; font-size: 12px;">
           <div id="siteNotice"></div>
           <h1 id="firstHeading" class="firstHeading" style="font-size: 14px; margin-bottom: 5px;">Información del usuario</h1>
           <div id="bodyContent" style="padding: 5px;">
@@ -122,6 +129,8 @@
             <p><b>Track:</b> ${location.song}</p>
             <p><a href="https://open.spotify.com/user/${location.userId}" target="_blank" style="font-size: 10px;">Ver perfil</a></p>
             <button id="button-${location.userId}" style="font-size: 10px;">Abrir Chat</button>           
+            <button id="button-cancion" style="font-size: 10px;">Vuestra Cancion</button>           
+            <button id="button-cantante" style="font-size: 10px;">Vuestro Cantante</button>           
             </div>
         </div>`;
 
@@ -138,6 +147,21 @@
         openChatButton.addEventListener('click', () => {
           openChat(location.userId);
         });
+
+        const cantanteBoton = document.getElementById(`button-cancion`);
+        cantanteBoton.addEventListener('click', () => {
+          socket.emit('canciones_mas_escuchadas', location.userId);
+            
+
+        });
+
+        const cancionBoton = document.getElementById(`button-cantante`);
+        cancionBoton.addEventListener('click', () => {
+          socket.emit('cantante_en_comun', location.userId);
+            
+
+        });
+
       });
       });
     } else {
@@ -145,6 +169,65 @@
       markers[location.userId].setPosition(new google.maps.LatLng(location.lat, location.lng));
     }
   });
+});
+
+       
+socket.on('track', function(track) {
+    const trackContainer = document.getElementById('track-info');
+
+    if (track.status === 'match') {
+        // Si hay coincidencia, mostrar la imagen, nombre y artista
+        trackContainer.innerHTML = `
+            <div>
+                <img src="${track.image_url}" alt="Portada del Álbum" style="width: 200px; height: 200px;">
+                <h2>Canción: ${track.name}</h2>
+                <h3>Artista: ${track.artist}</h3>
+            </div>
+        `;
+    } else if (track.status === 'no_match') {
+        // Si no hay coincidencia, mostrar mensaje
+        trackContainer.innerHTML = `
+            <div>
+                <h2>${track.message}</h2>
+            </div>
+        `;
+    }
+});
+
+socket.on('artist', function(artist) {
+    const artistContainer = document.getElementById('artist-info');
+
+    if (artist.status === 'match') {
+        // Si hay coincidencia, mostrar la imagen, nombre y artista
+        artistContainer.innerHTML = `
+            <div>
+                <img src="${artist.image_url}" alt="Portada del Álbum" style="width: 200px; height: 200px;">
+                <h2>Artista: ${artist.name}</h2>
+            </div>
+        `;
+    } else if (artist.status === 'no_match') {
+        // Si no hay coincidencia, mostrar mensaje
+        artistContainer.innerHTML = `
+            <div>
+                <h2>${artist.message}</h2>
+            </div>
+        `;
+    }
+});
+
+socket.on('song_update', function(data) {
+    // Actualizar la interfaz con la nueva canción y artista
+    let userElement = document.querySelector(`.persona-${data.user_id}`);
+    if (userElement) {
+
+      const userElement = document.querySelector(`.persona-${data.userId} p:nth-of-type(1)`); // Primer <p>, donde está el "User"
+      const trackElement = document.querySelector(`.persona-${data.userId} p:nth-of-type(2)`); // Segundo <p>, donde está el "Track"
+      
+      userElement.innerHTML = `<b>User:</b> ${data.track}`;   // Reemplaza el nombre de usuario
+      trackElement.innerHTML = `<b>Track:</b> ${data.artist}`;
+       
+        
+    }
 });
 socket.on('new_user_location', function(location) {
   if (!markers[location.userId]) {
@@ -185,7 +268,7 @@ socket.on('new_user_location', function(location) {
     markers[location.userId] = marker;
 
     const contentString = 
-      `<div id="content" style="width: 150px; font-size: 12px;">
+      `<div class="persona-${location.userId}" id="content" style="width: 150px; font-size: 12px;">
         <div id="siteNotice"></div>
         <h1 id="firstHeading" class="firstHeading" style="font-size: 14px; margin-bottom: 5px;">Información del usuario</h1>
         <div id="bodyContent" style="padding: 5px;">
@@ -194,6 +277,8 @@ socket.on('new_user_location', function(location) {
           <p><b>Track:</b> ${location.song}</p>
           <p><a href="https://open.spotify.com/user/${location.userId}" target="_blank" style="font-size: 10px;">Ver perfil</a></p>
           <button id="button-${location.userId}" style="font-size: 10px;">Abrir Chat</button>
+          <button id="button-cancion" style="font-size: 10px;">Vuestra Cancion</button>           
+          <button id="button-cantante" style="font-size: 10px;">Vuestro Cantante</button> 
           </div>
       </div>`;
 
@@ -211,6 +296,20 @@ socket.on('new_user_location', function(location) {
           openChat(location.userId);
         });
       });
+
+      const cantanteBoton = document.getElementById(`button-cancion`);
+        cantanteBoton.addEventListener('click', () => {
+          socket.emit('canciones_mas_escuchadas', location.userId);
+            
+
+        });
+
+        const cancionBoton = document.getElementById(`button-cantante`);
+        cancionBoton.addEventListener('click', () => {
+          socket.emit('cantante_en_comun', location.userId);
+          
+        });
+
     });
   }
 });

@@ -192,6 +192,32 @@ radiosPelos.forEach((radio) => {
 
 });
 
+const radiosPantalones = document.querySelectorAll('input[name="pantalones"]');
+radiosPantalones.forEach((radio) => {
+    //radio.addEventListener('change', function() {
+        //updateImage('ojos', this.id);
+    //});
+    if (radio.value == "faldas"){
+        radio.dataset.category = 'faldas';
+        radio.addEventListener('click', handleRadioClick);
+    }
+
+    else if (radio.value == "pantalon_corto"){
+        radio.dataset.category = 'pantalon_corto';
+        radio.addEventListener('click', handleRadioClick);
+    }
+
+    
+    else{
+
+        radio.dataset.category = 'pantalon_largo';
+        radio.addEventListener('click', handleRadioClick);
+
+    }
+
+});
+
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
