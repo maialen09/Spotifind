@@ -217,6 +217,40 @@ radiosPantalones.forEach((radio) => {
 
 });
 
+const radiosGafas = document.querySelectorAll('input[name="gafas"]');
+radiosGafas.forEach((radio) => {
+    //radio.addEventListener('change', function() {
+      //  updateImage('bocas', this.id);
+    //});
+
+    radio.dataset.category = 'gafas';
+    radio.addEventListener('click', handleRadioClick);
+});
+
+const radiosZapatillas = document.querySelectorAll('input[name="zapatillas"]');
+radiosZapatillas.forEach((radio) => {
+    //radio.addEventListener('change', function() {
+      //  updateImage('bocas', this.id);
+    //});
+
+    radio.dataset.category = 'zapatillas';
+    radio.addEventListener('click', handleRadioClick);
+});
+
+const radiosAccesorios = document.querySelectorAll('input[name="accesorios"]');
+radiosAccesorios.forEach((radio) => {
+    //radio.addEventListener('change', function() {
+      //  updateImage('bocas', this.id);
+    //});
+
+    radio.dataset.category = 'accesorios';
+    radio.addEventListener('click', handleRadioClick);
+});
+
+
+
+
+
 
 
 
@@ -275,4 +309,87 @@ document.addEventListener('DOMContentLoaded', () => {
         combinedImage.src = dataURL;
         resultContainer.appendChild(combinedImage);
     });
+
+    document.getElementById('continuar').addEventListener('click', () => {
+
+        // Antes de pasar a mapa comprobar si el usuario tiene una imagen guardada  
+        fetch('/obtener-imagen', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'found') {
+                // Si se encuentra la imagen, redirigir a /mapa
+                window.location.href = "/mapa";
+            } else if (data.status === 'not_found') {
+                console.log("Entro aqui")
+                // si no hay imagen añadir el cuerpo que se ha generado
+                
+                const images = document.querySelectorAll('.image-container img');
+        if (images.length === 0) {
+            console.error('No se encontraron imágenes.');
+            return;
+        }
+
+        const canvas = document.getElementById('combinedCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Esperar a que todas las imágenes estén cargadas
+        let firstImage = images[0];
+
+        if (!firstImage.complete) {
+            console.error('La primera imagen no está cargada.');
+            return;
+        }
+
+        const width = firstImage.naturalWidth;
+        const height = firstImage.naturalHeight;
+        canvas.width = width;
+        canvas.height = height;
+
+        // Dibujar todas las imágenes en el canvas
+        images.forEach(image => {
+            if (image.complete && image.naturalWidth !== 0 && image.naturalHeight !== 0) {
+                ctx.drawImage(image, 0, 0, width, height);
+            } else {
+                console.warn('Una imagen no está completamente cargada o no tiene dimensiones válidas.');
+            }
+        });
+
+        const dataURL = canvas.toDataURL('image/png');
+        const base64Data = dataURL.replace(/^data:image\/(png|jpg);base64,/, '');
+
+        fetch('/guardar_imagen', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ imagen: base64Data }),
+        })
+        .then(response => response.json())
+        .then(data => {console.log('Imagen guardada correctamente', data);
+        window.location.href = "/mapa";})
+        .catch(error => console.error('Error al guardar la imagen:', error));
+
+        const resultContainer = document.getElementById('result-container');
+        resultContainer.innerHTML = '';  
+        const combinedImage = new Image();
+        combinedImage.src = dataURL;
+        resultContainer.appendChild(combinedImage);
+
+        
+            } 
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    
+       
+    
+       
+    });
+    
 });

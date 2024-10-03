@@ -139,7 +139,7 @@
     </div>
 
 
-    <div class="menu-item"></div>
+    <div class="menu-item">
         <details>
             <summary>Bocas</summary>
             <ul>
@@ -152,10 +152,21 @@
         </details>
     </div>
 
-</div>
+    <div class="menu-item">
+        <details>
+            <summary>Gafas</summary>
+            <ul>
+                <li><input type="radio" name="gafas" id="normales"><label for="normales">Normales</label></li>
+                <li><input type="radio" name="gafas" id="de_sol"><label for="de_sol">De sol</label></li>
+                <li><input type="radio" name="gafas" id="parche"><label for="parche">Parche</label></li>
+            </ul>
+            
+        </details>
+    </div>
 
 
-<div class="menu-item">
+
+ <div class="menu-item">
     <details>
         <summary>Pelos</summary>
         <ul>
@@ -249,10 +260,11 @@
 
         </ul>
     </details>
-</div>
+  </div>
 
 
-<div class="menu-item">
+
+ <div class="menu-item">
     <details>
         <summary>Pantalones</summary>
         <ul>
@@ -295,8 +307,38 @@
 
         </ul>
     </details>
-</div>
+ </div>
 
+ <div class="menu-item">
+    <details>
+        <summary>Zapatillas</summary>
+        <ul>
+            <li><input type="radio" name="zapatillas" id="azul"><label for="azul">Azul</label></li>
+            <li><input type="radio" name="zapatillas" id="gris"><label for="gris">Gris</label></li>
+            <li><input type="radio" name="zapatillas" id="marron"><label for="marron">Marron</label></li>
+            <li><input type="radio" name="zapatillas" id="negro"><label for="negro">NNegro</label></li>
+            <li><input type="radio" name="zapatillas" id="rojo"><label for="rojo">Rojo</label></li>
+            <li><input type="radio" name="zapatillas" id="rosa"><label for="rosa">Rosa</label></li>
+            <li><input type="radio" name="zapatillas" id="verde"><label for="verde">Verde</label></li>
+        </ul>
+        
+    </details>
+ </div> 
+
+ <div class="menu-item">
+    <details>
+        <summary>Accesorios</summary>
+        <ul>
+            <li><input type="radio" name="accesorios" id="alas"><label for="alas">Alas</label></li>
+            <li><input type="radio" name="accesorios" id="capa"><label for="capa">Capa</label></li>
+            <li><input type="radio" name="accesorios" id="furro"><label for="furro">Furro</label></li>
+            <li><input type="radio" name="accesorios" id="gorrito"><label for="gorrito">Gorrito</label></li>
+        </ul>
+        
+    </details>
+ </div> 
+
+</div>
 
 <div class="image-container">
     <img  id="color cuerpo-image" src="" alt="Cuerpo" class="overlay-image">
@@ -319,9 +361,13 @@
     <img id="faldas-image" src="" alt="Pantalones" class="overlay-image">
     <img id="pantalon_corto-image" src="" alt="Pantalones" class="overlay-image">
     <img id="pantalon_largo-image" src="" alt="Pantalones" class="overlay-image">
+    <img id="gafas-image" src="" alt="Gafas" class="overlay-image">
+    <img id="zapatillas-image" src="" alt="Zapatillas" class="overlay-image">
+    <img id="accesorios-image" src="" alt="Accesorios" class="overlay-image">
 </div>
 
 <button id="guardar">Guardar</button>
+<button id="continuar"> Continuar</button>
 <canvas id="combinedCanvas" class="combinedCanvas" width="500" height="500"></canvas>
 <div id="result-container"></div>
 

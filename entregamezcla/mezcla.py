@@ -89,9 +89,9 @@ def insertar_usuario(nombre, contrasena, imagen):
         # Si el usuario no existe, insertarlo
         if count == 0:
             if (imagen == ""):
-                imagen = "https://img.pokemondb.net/sprites/bank/normal/tangela.png"
-                query = "INSERT INTO Usuarios(nombre, contrasena, ruta_imagen) VALUES (%s, %s, %s)"
-                cursor.execute(query, (nombre, contrasena, imagen))
+                #imagen = "https://img.pokemondb.net/sprites/bank/normal/tangela.png"
+                query = "INSERT INTO Usuarios(nombre, contrasena) VALUES (%s, %s)"
+                cursor.execute(query, (nombre, contrasena))
                 conn.commit()
 
 ##eliminar los usuarios que están añadidos en la base de datos
@@ -178,12 +178,32 @@ def actualizar_cancion_periodicamente():
 
 
 
+@app.route('/obtener-imagen', methods=['POST'])
+def obtener_imagen_ruta():
+    user_id = session.get('id')  # Obtener el ID del usuario desde la sesión
+    if not user_id:
+        return jsonify({'imagen': None, 'status': 'no_session'})  # Si no hay sesión
+    
+    img = obtener_imagen(user_id)  # Asegúrate de que esta función devuelva una lista
+
+    if img is not None:
+        img_1 = img[0]  
+        if img_1 and img_1[-1] is not None:  # Verifica que img_1 y su último elemento no sean None
+            img_base64 = base64.b64encode(img_1[-1]).decode('utf-8')
+            return jsonify({'imagen': img_base64, 'status': 'found'})  # Imagen encontrada
+        else:
+            return jsonify({'imagen': None, 'status': 'not_found'})  # Imagen no encontrada
+    else:
+        return jsonify({'imagen': None, 'status': 'not_found'})  # Imagen no encontrada
+
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/menu')
-def menu():
+@app.route('/personajes')
+def personajes():
     return redirect(url_for('login'))
 
 @app.route('/login')
@@ -255,7 +275,7 @@ def profile():
     except json.JSONDecodeError as e:
         app.logger.error(f'Error decoding JSON: {e}')
         app.logger.debug(f'Response content: {response.text}')
-        return render_template('menu.html', track=None, artist=None, error="Failed to decode response")
+        return render_template('personajes.html', track=None, artist=None, error="Failed to decode response")
     
     if response.status_code != 204 and 'item' in response_data:
         track = response_data['item']['name']
@@ -271,20 +291,20 @@ def profile():
         except json.JSONDecodeError as e:
             app.logger.error(f'Error decoding JSON: {e}')
             app.logger.debug(f'Playback state response content: {state_response.text}')
-            return render_template('menu.html', track=None, artist=None, error="Failed to decode playback state response")
+            return render_template('personajes.html', track=None, artist=None, error="Failed to decode playback state response")
         
         if state_response.status_code != 204 and 'item' in state_data:
             track = state_data['item']['name']
             artist = state_data['item']['artists'][0]['name']
         else:
-            return render_template('menu.html', track=None, artist=None, error="No song currently playing")
+            return render_template('personajes.html', track=None, artist=None, error="No song currently playing")
     
     # Guardar en la sesión la información correspondiente con el usuario
 
     session['track'] = track
     session['artist'] = artist
     
-    return render_template('menu.html', track=track, artist=artist, usuario=usuario, unico=unico, error=None)
+    return render_template('personajes.html', track=track, artist=artist, usuario=usuario, unico=unico, error=None)
 
 @app.route('/personalizacion', methods=['GET', 'POST'])
 def personalizacion():
@@ -328,9 +348,9 @@ def prueba():
 def tiemporeal():
     return render_template('tiemporeal.html')
 
-@app.route('/personajes')
-def personajes():
-    return render_template('personajes.html')
+@app.route('/menu')
+def menu():
+    return render_template('menu.html')
 
 
 @app.route('/guardar_imagen', methods=['POST'])
