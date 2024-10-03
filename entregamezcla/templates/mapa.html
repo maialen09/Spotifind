@@ -230,11 +230,11 @@ socket.on('song_update', function(data) {
     let userElement = document.querySelector(`.persona-${data.user_id}`);
     if (userElement) {
 
-      const userElement = document.querySelector(`.persona-${data.userId} p:nth-of-type(1)`); // Primer <p>, donde está el "User"
-      const trackElement = document.querySelector(`.persona-${data.userId} p:nth-of-type(2)`); // Segundo <p>, donde está el "Track"
+      const userNameElement = userElement.querySelector(`.persona-${data.user_id} p:nth-of-type(2)`); // Primer <p>, donde está el "User"
+      const trackElement = userElement.querySelector(`.persona-${data.user_id} p:nth-of-type(3)`); // Segundo <p>, donde está el "Track"
       
-      userElement.innerHTML = `<b>User:</b> ${data.track}`;   // Reemplaza el nombre de usuario
-      trackElement.innerHTML = `<b>Track:</b> ${data.artist}`;
+      userNameElement.innerHTML = `<b>Track:</b> ${data.track}`;   // Reemplaza el nombre de usuario
+      trackElement.innerHTML = `<b>Artist:</b> ${data.artist}`;
        
         
     }
