@@ -148,6 +148,75 @@ def obtener_chats_usuarios(user_id):
         chats = cursor.fetchall()
     return chats
 
+def guardar_opciones(data, user_id):
+    cuerpo_categoria = data.get('body_type', {}).get('on', None)
+
+    ojos_info = data.get('ojos', {})
+    ojos_categoria = list(ojos_info.keys())[0] if ojos_info else None
+    ojos_color = ojos_info.get(ojos_categoria, None) if ojos_categoria else None
+
+    camiseta_info = data.get('camisetas', {})
+    camiseta_categoria = list(camiseta_info.keys())[0] if camiseta_info else None
+    camiseta_color = camiseta_info.get(camiseta_categoria, None) if camiseta_categoria else None
+
+    boca = data.get('bocas', {}).get('on', None)
+
+    gafas = data.get('gafas', {}).get('on', None)
+
+    pelo_info = data.get('pelos', {})
+    pelo_categoria = list(pelo_info.keys())[0] if pelo_info else None
+    pelo_color = pelo_info.get(pelo_categoria, None) if pelo_categoria else None
+
+    pantalones_info = data.get('pantalones', {})
+    pantalones_categoria = list(pantalones_info.keys())[0] if pantalones_info else None
+    pantalones_color = pantalones_info.get(pantalones_categoria, None) if pantalones_categoria else None
+
+    zapatillas = data.get('zapatillas', {}).get('on', None)
+    accesorio = data.get('accesorios', {}).get('on', None)
+
+    # Consulta SQL para insertar o actualizar
+    query = """
+        INSERT INTO Opciones (user_id, cuerpo_categoria, ojos_color, ojos_categoria, camiseta_color, camiseta_categoria, 
+                               boca, gafas, pelo_color, pelo_categoria, pantalones_categoria, 
+                               pantalones_color, zapatillas, accesorio) 
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ON DUPLICATE KEY UPDATE 
+            cuerpo_categoria = VALUES(cuerpo_categoria),
+            ojos_color = VALUES(ojos_color),
+            ojos_categoria = VALUES(ojos_categoria),
+            camiseta_color = VALUES(camiseta_color),
+            camiseta_categoria = VALUES(camiseta_categoria),
+            boca = VALUES(boca),
+            gafas = VALUES(gafas),
+            pelo_color = VALUES(pelo_color),
+            pelo_categoria = VALUES(pelo_categoria),
+            pantalones_categoria = VALUES(pantalones_categoria),
+            pantalones_color = VALUES(pantalones_color),
+            zapatillas = VALUES(zapatillas),
+            accesorio = VALUES(accesorio)
+    """
+
+    with mysql.connector.connect(**db_config) as conn:
+        cursor = conn.cursor()
+        cursor.execute(query, (
+            user_id, 
+            cuerpo_categoria, 
+            ojos_color,  # Este estaba en la posición incorrecta
+            ojos_categoria,
+            camiseta_color,
+            camiseta_categoria, 
+            boca, 
+            gafas, 
+            pelo_color,
+            pelo_categoria, 
+            pantalones_categoria, 
+            pantalones_color, 
+            zapatillas, 
+            accesorio
+        ))
+        conn.commit()
+
+
 
 def actualizar_cancion_periodicamente():
     while True:
@@ -196,6 +265,12 @@ def obtener_imagen_ruta():
     else:
         return jsonify({'imagen': None, 'status': 'not_found'})  # Imagen no encontrada
 
+@app.route('/guardar-opciones', methods=['POST'])
+def guardar_opciones_ruta():
+    user_id = session.get('id')
+    data = request.get_json()
+    guardar_opciones(data, user_id)
+    return "Opciones guardadas", 200
 
 
 @app.route('/')

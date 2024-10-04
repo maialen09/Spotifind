@@ -19,6 +19,23 @@ CREATE TABLE IF NOT EXISTS mensajes (
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS Opciones(
+    user_id VARCHAR(200) PRIMARY KEY,
+    cuerpo_categoria VARCHAR(50),
+    ojos_categoria VARCHAR(50),
+    ojos_color VARCHAR(50),
+    camiseta_categoria VARCHAR(50),
+    camiseta_color VARCHAR(50),
+    boca VARCHAR(50),
+    gafas VARCHAR(50),
+    pelo_categoria VARCHAR(50),
+    pelo_color VARCHAR(50),
+    pantalones_categoria VARCHAR(50),
+    pantalones_color VARCHAR(50),
+    zapatillas VARCHAR(50),
+    accesorio VARCHAR(50)
+)
+
 
 
 

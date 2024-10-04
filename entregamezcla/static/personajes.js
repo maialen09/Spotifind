@@ -22,6 +22,30 @@ function selectFirstBody() {
     }
 }
 
+function getSelectedButtons() {
+    const categories = ['body_type', 'ojos', 'camisetas', 'bocas', 'pelos', 'pantalones', 'gafas', 'zapatillas', 'accesorios'];
+    const selectedButtons = {};
+
+    categories.forEach((category) => {
+        const selectedRadio = document.querySelector(`input[name="${category}"]:checked`);
+
+        if (selectedRadio) {
+            // Verifica si la categoría ya existe en el objeto
+            if (!selectedButtons[category]) {
+                selectedButtons[category] = {}; // Crea un objeto para subcategorías si no existe
+            }
+            // Almacena el valor y el ID en la subcategoría
+            selectedButtons[category][selectedRadio.value] = selectedRadio.id; 
+        } else {
+            selectedButtons[category] = null; // Ningún botón seleccionado en esta categoría
+        }
+    });
+
+    return selectedButtons;
+}
+
+
+
 function handleRadioClick(event) {
     const category = this.dataset.category;
 
@@ -308,6 +332,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const combinedImage = new Image();
         combinedImage.src = dataURL;
         resultContainer.appendChild(combinedImage);
+
+
+        const opciones = getSelectedButtons();
+        console.log(opciones)
+        fetch('/guardar-opciones', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json', // Indica que envías datos JSON
+            },
+            body: JSON.stringify(opciones) // Convierte el objeto JS a JSON para enviarlo
+        })
+      
+    
     });
 
     document.getElementById('continuar').addEventListener('click', () => {

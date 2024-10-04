@@ -1,9 +1,13 @@
 .image-container{
     position: absolute; /* Posiciona el contenedor de imágenes fuera del flujo normal del documento */
     top: 0; /* Alineado con la parte superior de la página o del contenedor padre */
-    right: 70px; /* Lo desplaza hacia la derecha */
-    width: 700px; /* Ajusta el ancho del contenedor de imágenes */
-    height: 700px; /* Ajusta el alto del contenedor de imágenes */
+    right: 500px; /* Lo desplaza hacia la derecha */
+    width: 200px; /* Ajusta el ancho del contenedor de imágenes */
+    height: 400px; /* Ajusta el alto del contenedor de imágenes */
+    border: 2px solid #ccc; /* Bordes suaves */
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     /*border: 2px solid #ccc; /* Bordes opcionales para visualizar el contenedor */
     z-index: 10; /
 }
@@ -28,14 +32,34 @@ body {
     font-family: Arial, sans-serif;
     background-color: white;
 }
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px 5px;
+    
+}
 
+button:hover {
+    background-color: #45a049;
+}
 .menu {
     width: 200px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    margin-right: 20px;
 }
 
 .menu-item {
     margin-bottom: 10px;
     color: darkgreen;
+    
 }
 
 .menu-item ul {
