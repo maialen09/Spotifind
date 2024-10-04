@@ -26,7 +26,7 @@ img {
 
 body {
     font-family: Arial, sans-serif;
-    background-color: black;
+    background-color: white;
 }
 
 .menu {
@@ -35,7 +35,7 @@ body {
 
 .menu-item {
     margin-bottom: 10px;
-    color: aliceblue;
+    color: darkgreen;
 }
 
 .menu-item ul {
@@ -47,6 +47,26 @@ body {
     display:none;
 
     
+}
+
+#zapatillas-image {
+    z-index: 1;  /* Valor más bajo para estar por debajo */
+}
+
+#camiseta_tirantes-image, 
+#camiseta_manga_corta-image, 
+#camiseta_sudaderas-image,
+#camiseta_mangas_largas-image,
+#camiseta_camisa-image{
+
+    z-index: 3;
+}
+
+/* Pantalones por encima de las zapatillas */
+#faldas-image,
+#pantalon_corto-image,
+#pantalon_largo-image {
+    z-index: 2;  /* Valor más alto para estar encima */
 }
 
 @media (max-width: 600px) {
