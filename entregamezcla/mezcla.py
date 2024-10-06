@@ -149,7 +149,8 @@ def obtener_chats_usuarios(user_id):
     return chats
 
 def guardar_opciones(data, user_id):
-    cuerpo_categoria = data.get('body_type', {}).get('on', None)
+    cuerpo_info = data.get('body_type', {})
+    cuerpo_categoria = list(cuerpo_info.keys())[0] if cuerpo_info else None
 
     ojos_info = data.get('ojos', {})
     ojos_categoria = list(ojos_info.keys())[0] if ojos_info else None
@@ -159,9 +160,14 @@ def guardar_opciones(data, user_id):
     camiseta_categoria = list(camiseta_info.keys())[0] if camiseta_info else None
     camiseta_color = camiseta_info.get(camiseta_categoria, None) if camiseta_categoria else None
 
-    boca = data.get('bocas', {}).get('on', None)
+    boca_info = data.get('bocas', {})
+    boca = list(boca_info.keys())[0] if boca_info else None
 
-    gafas = data.get('gafas', {}).get('on', None)
+
+
+    gafas_info = data.get('gafas', {})
+    gafas = list(gafas_info.keys())[0] if gafas_info else None
+
 
     pelo_info = data.get('pelos', {})
     pelo_categoria = list(pelo_info.keys())[0] if pelo_info else None
@@ -171,8 +177,13 @@ def guardar_opciones(data, user_id):
     pantalones_categoria = list(pantalones_info.keys())[0] if pantalones_info else None
     pantalones_color = pantalones_info.get(pantalones_categoria, None) if pantalones_categoria else None
 
-    zapatillas = data.get('zapatillas', {}).get('on', None)
-    accesorio = data.get('accesorios', {}).get('on', None)
+    zapatillas_info = data.get('zapatillas', {})
+    zapatillas = list(zapatillas_info.keys())[0] if zapatillas_info else None
+
+
+    accesorio_info = data.get('accesorios', {})
+    accesorio = list(accesorio_info.keys())[0] if accesorio_info else None
+
 
     # Consulta SQL para insertar o actualizar
     query = """
@@ -216,6 +227,15 @@ def guardar_opciones(data, user_id):
         ))
         conn.commit()
 
+## método que devuelve las opciones de personaje que ha guardado el usuario 
+def obtener_opciones(user_id):
+    with mysql.connector.connect(**db_config) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM Opciones WHERE user_id = %s", (user_id,))
+        opciones = cursor.fetchall()
+    return opciones
+ 
+
 
 
 def actualizar_cancion_periodicamente():
@@ -245,6 +265,32 @@ def actualizar_cancion_periodicamente():
                             })
         time.sleep(120)
 
+@app.route('/api/opciones', methods=['GET'])
+def obtener_opciones_ruta():
+    user_id = session.get('id')
+    opciones = obtener_opciones(user_id)
+
+    opciones_list = []
+    for opcion in opciones:
+            opciones_dict = {
+                'user_id': opcion[0],  # Ajusta según el índice
+                'cuerpo_categoria': opcion[1],
+                'ojos_color': opcion[2],
+                'ojos_categoria': opcion[3],
+                'camiseta_color': opcion[4],
+                'camiseta_categoria': opcion[5],
+                'boca': opcion[6],
+                'gafas': opcion[7],
+                'pelo_color': opcion[8],
+                'pelo_categoria': opcion[9],
+                'pantalones_categoria': opcion[10],
+                'pantalones_color': opcion[11],
+                'zapatillas': opcion[12],
+                'accesorio': opcion[13]
+            }
+            opciones_list.append(opciones_dict)
+            
+    return jsonify(opciones_list)
 
 
 @app.route('/obtener-imagen', methods=['POST'])

@@ -37,7 +37,7 @@ function getSelectedButtons() {
             // Almacena el valor y el ID en la subcategoría
             selectedButtons[category][selectedRadio.value] = selectedRadio.id; 
         } else {
-            selectedButtons[category] = null; // Ningún botón seleccionado en esta categoría
+            selectedButtons[category] = {}; // Ningún botón seleccionado en esta categoría
         }
     });
 
@@ -274,12 +274,124 @@ radiosAccesorios.forEach((radio) => {
 
 
 
+function obtenerOpciones(){
+    fetch('/api/opciones')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Opciones:', data);
+        if (data.length == 0){
+            console.log("Estoy entrando aqui")
+            selectFirstBody();
+        }
+        else{
+            data = data[0];
+            Object.keys(data).forEach(category => {
+            const selectedValue = data[category];  // Obtiene el valor seleccionado
+            console.log("selectedValue:", selectedValue);
+            console.log("category:", category);
+            if (selectedValue) {
+                if (category == "accesorio"){
+                    category = "accesorios"
+                    const accesorioRadio = document.querySelector(`input[name="accesorios"][value="${selectedValue}"]`);
+                    accesorioRadio.checked = true;
+                    updateImage(category, selectedValue);
+                
+                }
+
+                else if (category == "boca"){
+                    category = "bocas";
+                    const bocasRadio = document.querySelector(`input[name="bocas"][value="${selectedValue}"]`);
+                    bocasRadio.checked = true;
+                    updateImage(category, selectedValue);
+                }
+
+                else if (category == "gafas"){
+                    const gafasRadio = document.querySelector(`input[name="gafas"][value="${selectedValue}"]`);
+                    gafasRadio.checked = true;
+                    updateImage(category, selectedValue);
+                }
+                else if (category == "zapatillas"){
+
+                    const zapatillasRadio = document.querySelector(`input[name="zapatillas"][value="${selectedValue}"]`);
+                    zapatillasRadio.checked = true;
+                    updateImage(category, selectedValue);
+                }
+
+                else if (category == "cuerpo_categoria"){
+                    category = "color cuerpo";
+                    const cuerpoRadio = document.querySelector(`input[name="body_type"][value="${selectedValue}"]`);
+                    cuerpoRadio.checked = true;
+                    updateImage(category, selectedValue);
+                }
+
+                else if (category == "ojos_categoria"){
+                    category = "ojos"; 
+                    colorOjos = data.ojos_color; 
+                    const ojosRadio = document.querySelector(`input[name="ojos"][value="${colorOjos}"][id="${selectedValue}"]`);
+                    ojosRadio.checked = true;
+                    if (colorOjos == "aplastados"){colorOjos = "ojos_aplastados"}
+                    else if (colorOjos == "medios"){colorOjos = "ojos_medios"}
+                    else if (colorOjos == "redondos"){colorOjos = "ojos_redondos"}
+                    updateImage(colorOjos, selectedValue);
+
+                }
+
+                else if (category == "camiseta_categoria"){
+                
+                    category = "camisetas";
+                    colorCamiseta = data.camiseta_color;
+                    console.log("colorCamiseta:", colorCamiseta);
+                    const camisetaRadio = document.querySelector(`input[name="camisetas"][value="${colorCamiseta}"][id="${selectedValue}"]`);
+                    camisetaRadio.checked = true;
+                    if (colorCamiseta == "manga_corta"){colorCamiseta = "camiseta_manga_corta"}
+                    else if (colorCamiseta == "sudadera"){colorCamiseta = "camiseta_sudaderas"}
+                    else if (colorCamiseta == "tirantes"){colorCamiseta = "camiseta_tirantes"}
+                    else if (colorCamiseta == "manga_larga"){colorCamiseta = "camiseta_mangas_largas"}
+                    else if (colorCamiseta == "camisas"){colorCamiseta = "camiseta_camisa"}
+                    updateImage(colorCamiseta, selectedValue);
+                }
+
+                else if (category == "pelo_categoria"){
+                    category = "pelos";
+                    const colorPelo = data.pelo_color;
+                    const peloRadio = document.querySelector(`input[name="pelos"][value="${colorPelo}"][id="${selectedValue}"]`);
+                    peloRadio.checked = true;
+                    updateImage(colorPelo, selectedValue);
+                    
+                }
+
+                else if (category == "pantalon_categoria"){
+                    category = "pantalones";
+                    const colorPantalon = data.pantalon_color;
+                    const pantalonRadio = document.querySelector(`input[name="pantalones"][value="${colorPantalon}"][id="${selectedValue}"]`);
+                    pantalonRadio.checked = true;
+                    updateImage(colorPantalon, selectedValue);
+                    
+                }
+               
+            }
+        });
+        }
+        // Aquí puedes procesar las opciones obtenidas
+    })
+    .catch(error => {
+        console.error('Hubo un problema con la solicitud:', error);
+    });
+}
 
 
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    selectFirstBody();
+    // llamar al método para cargar las opciones del personaje que estaba cargado en la base de datos 
+    obtenerOpciones();
+
+   
     document.getElementById('guardar').addEventListener('click', () => {
 
         const images = document.querySelectorAll('.image-container img');
@@ -335,7 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         const opciones = getSelectedButtons();
-        console.log(opciones)
+        console.log("Las opciones que se reciben:",opciones)
         fetch('/guardar-opciones', {
             method: 'POST',
             headers: {

@@ -19,8 +19,10 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
+    border: none;
 }
 img {
+    border: none;
     width: 500px; /* Ancho grande */
     height: 500px; /* Alto grande */
     object-fit: contain; /* Ajusta la imagen dentro del contenedor sin distorsión */
