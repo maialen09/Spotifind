@@ -79,7 +79,7 @@ def get_usuarios():
 # Funciones para manipular usuarios en la base de datos
 
 ## insertar un nuevo usuario en la base de datos
-def insertar_usuario(nombre, contrasena, imagen):
+def insertar_usuario(nombre, contrasena, imagen, display_name):
     with mysql.connector.connect(**db_config) as conn:
         cursor = conn.cursor()
         # Verificar si el usuario ya existe
@@ -90,8 +90,8 @@ def insertar_usuario(nombre, contrasena, imagen):
         if count == 0:
             if (imagen == ""):
                 #imagen = "https://img.pokemondb.net/sprites/bank/normal/tangela.png"
-                query = "INSERT INTO Usuarios(nombre, contrasena) VALUES (%s, %s)"
-                cursor.execute(query, (nombre, contrasena))
+                query = "INSERT INTO Usuarios(nombre, contrasena, display_name) VALUES (%s, %s, %s)"
+                cursor.execute(query, (nombre, contrasena, display_name))
                 conn.commit()
 
 ##eliminar los usuarios que están añadidos en la base de datos
@@ -101,6 +101,15 @@ def eliminar_usuarios():
         query = "DELETE FROM Usuarios"
         cursor.execute(query)
         conn.commit()
+
+## eliminar un usuario en concreto
+def eliminar_usuario(user_id):
+    with mysql.connector.connect(**db_config) as conn:
+        cursor = conn.cursor()
+        query = "DELETE FROM Usuarios WHERE nombre = %s"
+        cursor.execute(query,(user_id,))
+        conn.commit()
+
 
 ## insertar la imagen que se ha elegido en la ventana de personalizacion
 def insertar_imagen(nombre_usuario, imagen):
@@ -318,6 +327,13 @@ def guardar_opciones_ruta():
     guardar_opciones(data, user_id)
     return "Opciones guardadas", 200
 
+@app.route('/eliminar_usuario', methods=['POST'])
+def eliminar_usuario_ruta():
+    user_id = request.json['user_id']
+    print("El usuario es :", user_id)
+    eliminar_usuario(user_id)
+    return jsonify({"message": f"Usuario {user_id} eliminado correctamente."})  
+    
 
 @app.route('/')
 def index():
@@ -371,9 +387,11 @@ def profile():
     profile_url2 = 'https://api.spotify.com/v1/me'
     response2 = requests.get(profile_url2, headers=headers)
     response_data2 = response2.json()
+
+    
     
     # Guardar información del usuario
-    insertar_usuario(response_data2['id'], "contraseña", "")
+    insertar_usuario(response_data2['id'], "contraseña", "", response_data2['display_name'])
     
     unico = response_data2['id']
     tokens[unico] = session.get('access_token')
@@ -455,11 +473,16 @@ def pagina3():
     ##insertar_usuarios(4)
     ##eliminar_usuarios()
     usuarios = get_usuarios()
+    usuarios = [usuario[0] for usuario in usuarios] ## para no mandar el nombre de los usuarios con comas , ya que se reciben como tuplas
     return render_template('pagina3.html', lista_elementos=usuarios)
 
 @app.route('/mapa')
 def mapa():
     return render_template('mapa.html')
+
+@app.route('/administrador')
+def administrador():
+    return render_template('administrador.html')
 
 @app.route('/prueba')
 def prueba():
@@ -471,6 +494,7 @@ def tiemporeal():
 
 @app.route('/menu')
 def menu():
+    
     return render_template('menu.html')
 
 

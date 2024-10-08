@@ -98,8 +98,8 @@
 /* Botón o ícono para abrir la lista de chats */
 .chat-toggle {
     position: fixed;
-    top: 10px;
-    left: 10px;
+    top: 30px;
+    left: 20px;
 }
 
 .chat-icon {
@@ -108,6 +108,13 @@
     border: none;
     cursor: pointer;
     color: #5533ff;
+}
+
+.perfil-opciones{
+    position: fixed;
+    top: 70px;
+    left: 20px;
+
 }
 
 /* Contenedor de la lista de chats */

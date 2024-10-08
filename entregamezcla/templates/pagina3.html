@@ -4,15 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Usuarios de Spotifus</title>
+    <script src="../static/pagina3.js"></script>
+    <link rel="stylesheet" href="../static/pagina3.css">
 </head>
 <body>
 
-    <h1>Lista de Usuarios</h1>
-    <ul>
+    <h1>Usuarios</h1>
+    <input type="text" id="buscador" onkeyup="filtrarUsuarios()" placeholder="Buscar usuarios...">
+    <div>
         {% for elemento in lista_elementos %}
-            <li>{{ elemento }}</li>
+        <button type="button" class="menu-btn" onclick="mostrarMenu(event, this.innerText)">{{ elemento }}</button>
+
         {% endfor %}
-    </ul>
+    </div>
+
+    <div id="menu-opciones" class="menu-opciones">
+        <button onclick="ejecutarAccion('Eliminar usuario')">Eliminar usuario</button>
+        <button onclick="ejecutarAccion('Ver personaje')">Ver personaje</button>
+        <button onclick="ejecutarAccion('Ver 10 últimas canciones')">Ver 10 últimas canciones</button>
+    </div>
 
     
 </body>
