@@ -26,11 +26,14 @@
       <button id="toggle-chat-list" class="chat-icon">💬</button> <!-- Puedes usar un icono de chat aquí -->
   </div>
   <div class="perfil-opciones">
-    <button id="boton-perfil" class="perfil-icon">
+  <a href="{{ url_for('opciones')}}">   
+    <button id="boton-perfil" class="perfil-icon" type="button">
       <i class="fi fi-bs-user"></i> Perfil
     </button>
+  </a>
   </div>
   <div id="chat-list-container" class="chat-list-container hidden">
+    <input type="text" id="buscador" onkeyup="filtrarChats()" placeholder="Buscar chats...">
     <button id="close-chat-list" class="close-chat-list-btn">&times;</button> 
     <ul id="chat-list"></ul>
   </div>
@@ -71,7 +74,7 @@
     
               // Centrar el mapa en la ubicación del usuario
               map.setCenter(pos);
-              map.setZoom(14);
+              map.setZoom(20);
             },
             function() {
               handleLocationError(true, map.getCenter());
@@ -503,12 +506,33 @@ function imprimir(data){
     chatListContainer.classList.toggle('hidden');
 });
 
+
+
+
 document.getElementById('close-chat-list').addEventListener('click', function() {
     const chatListContainer = document.getElementById('chat-list-container');
     chatListContainer.classList.add('hidden');  // Ocultar la lista de chats
     chatListContainer.classList.remove('visible');
 });
 
+function filtrarChats() {
+    // Obtener el valor del campo de búsqueda y pasarlo a minúsculas
+    var input = document.getElementById('buscador');
+    var filter = input.value.toLowerCase();
+    
+    // Obtener todos los elementos de la lista de chats
+    var chatItems = document.querySelectorAll('#chat-list li');
+
+    // Recorrer los elementos de la lista y mostrar u ocultar según el filtro
+    chatItems.forEach(function(item) {
+        var texto = item.textContent || item.innerText; // Obtener el texto del chat
+        if (texto.toLowerCase().indexOf(filter) > -1) {
+            item.style.display = ""; // Mostrar el chat
+        } else {
+            item.style.display = "none"; // Ocultar el chat
+        }
+    });
+}
 
       
 socket.on('user_chats', function(data) {

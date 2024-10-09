@@ -245,6 +245,20 @@ def obtener_opciones(user_id):
     return opciones
  
 
+def cambiar_nombre_usuario(dato, id):
+    with mysql.connector.connect(**db_config) as conn:
+        cursor = conn.cursor()
+        query = "UPDATE Usuarios SET display_name = %s WHERE nombre = %s"
+        cursor.execute(query, (dato, id))
+        conn.commit()
+
+def obtener_nombre_usuario(unico):
+    with mysql.connector.connect(**db_config) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT display_name FROM Usuarios WHERE nombre = %s",(unico,))
+        username = cursor.fetchall()
+    return username[0][0]
+
 
 
 def actualizar_cancion_periodicamente():
@@ -332,6 +346,7 @@ def eliminar_usuario_ruta():
     user_id = request.json['user_id']
     print("El usuario es :", user_id)
     eliminar_usuario(user_id)
+    ## hay que eliminar tambien los chats y opciones de este usuario
     return jsonify({"message": f"Usuario {user_id} eliminado correctamente."})  
     
 
@@ -398,6 +413,7 @@ def profile():
     usuario = response_data2['display_name']
 
     session['id'] = unico
+    usuario = obtener_nombre_usuario(unico)
     session['usuario'] = usuario
     
     # Inicializar variables para track y artist
@@ -492,11 +508,33 @@ def prueba():
 def tiemporeal():
     return render_template('tiemporeal.html')
 
+@app.route('/opciones')
+def opciones():
+    return render_template('opciones.html')
+
+@app.route('/cambiar_usuario')
+def cambiar_usuario():
+    username = request.args.get('username')
+    return render_template('cambiar_usuario.html', username=username)
+
+
 @app.route('/menu')
 def menu():
-    
     return render_template('menu.html')
 
+
+@app.route('/get_username')
+def get_username():
+    username = session.get('usuario')
+    return jsonify(username=username)
+
+@app.route('/procesar_dato', methods=['POST'])
+def procesar_dato():
+    dato = request.json.get('dato')
+    session['usuario'] = dato
+    id = session.get('id')
+    cambiar_nombre_usuario(dato, id)
+    return jsonify({'respuesta': f'Nombre de usuario actualizado a {dato}'}), 200
 
 @app.route('/guardar_imagen', methods=['POST'])
 def guardar_imagen():

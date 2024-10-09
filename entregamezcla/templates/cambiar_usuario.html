@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cambiar de nombre de usuario</title>
+</head>
+<body>
+    <h3>Tu nombre de usuario ahora mismo es : {{ username }}!</h3>
+    <h3>Introduce aqui tu nuevo nombre de usuario: </h3>
+
+    <form id="myForm"></form>
+        <input type="text" id="textInput" placeholder="Escribe tu nombre aquí">
+        <button type="button" onclick="sendInputToServer()">Enviar</button>
+    </form>
+
+    <p id="output"></p>
+
+    <script>
+        // Función para recoger el valor del campo de texto
+        function sendInputToServer() {
+            // Obtener el valor del campo de texto
+            const inputVal = document.getElementById("textInput").value;
+
+            // Enviar el valor al servidor usando fetch
+            fetch('/procesar_dato', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ dato: inputVal }) // Enviar el valor en formato JSON
+            })
+            .then(response => response.json()) // Parsear la respuesta como JSON
+            .then(data => {
+                // Mostrar la respuesta del servidor en el <p> con id="output"
+                document.getElementById("output").innerText = data.respuesta;
+            })
+            .catch(error => console.error('Error al enviar el dato:', error));
+        }
+    </script>
+    
+</body>
+</html>
