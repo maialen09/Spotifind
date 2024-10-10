@@ -13,15 +13,20 @@ function ejecutarAccion(accion) {
 
 
     }
-    else if (accion == "Eliminar un chat"){
+    else if (accion == "Bloquear a un usuario"){
 
         // Habría que cargar todos los chats que tiene el usuario y que pueda elegir cual eliminar 
         // Eliminar el chat solo para mi o para el otro usuario tambien 
 
-        
+        window.location.href=`/bloquear`;
 
     }
-    else if (accion == "Ver 10 últimas canciones" ){
+    else if (accion == "Desbloquear a un usuario"){
+
+        window.location.href=`/desbloquear`;
+
+
+
 
     }
 

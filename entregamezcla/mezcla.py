@@ -259,6 +259,37 @@ def obtener_nombre_usuario(unico):
         username = cursor.fetchall()
     return username[0][0]
 
+def insertar_bloqueo(bloqueador, bloqueado):
+    with mysql.connector.connect(**db_config) as conn:
+        cursor = conn.cursor()
+        query = "INSERT INTO Bloqueos(bloqueador, bloqueado) VALUES (%s, %s)"
+        cursor.execute(query, (bloqueador, bloqueado))
+        conn.commit()
+
+def obtener_bloqueos(user_id):
+    with mysql.connector.connect(**db_config) as conn:
+        cursor = conn.cursor()
+        query = "SELECT bloqueado FROM Bloqueos WHERE bloqueador = %s"
+        cursor.execute(query,(user_id,))
+        bloqueados = cursor.fetchall()
+    return bloqueados
+
+def esta_bloqueado(bloqueador, bloqueado):
+    with mysql.connector.connect(**db_config) as conn:
+        cursor = conn.cursor()
+        query = "SELECT COUNT(*) FROM Bloqueos WHERE bloqueador = %s AND bloqueado = %s"
+        cursor.execute(query, (bloqueador, bloqueado))
+        result = cursor.fetchone()
+        
+    # Si el resultado es mayor que 0, significa que el usuario está bloqueado
+    return result[0] > 0
+
+def eliminar_bloqueo(bloqueador, bloqueado):
+    with mysql.connector.connect(**db_config) as conn:
+        cursor = conn.cursor()
+        query = "DELETE FROM Bloqueos WHERE bloqueador = %s AND bloqueado = %s"
+        cursor.execute(query, (bloqueador, bloqueado))
+        conn.commit()
 
 
 def actualizar_cancion_periodicamente():
@@ -517,6 +548,49 @@ def cambiar_usuario():
     username = request.args.get('username')
     return render_template('cambiar_usuario.html', username=username)
 
+@app.route('/bloquear')
+def bloquear():
+    rooms = obtener_rooms(session.get('id'))
+    amigos = set()
+    for room in rooms: 
+        cadena = room[0]
+        partes = cadena.split('-')
+        amigos.update(partes)
+
+    amigos = list(amigos)
+
+    return render_template('bloquear.html', rooms=amigos)
+
+@app.route('/desbloquear')
+def desbloquear():
+    bloqueados = obtener_bloqueos(session.get('id'))
+    bloqueados = [bloqueado[0] for bloqueado in bloqueados]
+    return render_template('desbloquear.html', bloqueados=bloqueados)
+
+@app.route('/bloqueos', methods=['POST'])
+def get_bloqueos():
+    user_id = request.json['user_id']
+    bloqueado = esta_bloqueado(user_id, session.get('id'))
+    if (bloqueado):
+        return jsonify({"esta_bloqueado": bloqueado})
+    else :
+        esta_bloqueado2 = esta_bloqueado(session.get('id'), user_id)
+        return jsonify({"esta_bloqueado": esta_bloqueado2})
+
+@app.route('/bloquear_usuario', methods=['POST'])
+def bloquear_usuario():
+    bloqueado_id = request.json['bloqueado_id']
+    insertar_bloqueo(session.get('id'), bloqueado_id)
+    return jsonify({"message": f"Usuario {bloqueado_id} bloqueado correctamente."})
+   
+@app.route('/desbloquear_usuario', methods=['POST'])
+def desbloquear_usuario():
+    ## eliminar de la base de datos 
+    bloqueado_id = request.json['bloqueado_id']
+    eliminar_bloqueo(session.get('id'), bloqueado_id)
+    return jsonify({"message": f"Usuario {bloqueado_id} desbloqueado correctamente."})
+
+
 
 @app.route('/menu')
 def menu():
@@ -527,6 +601,7 @@ def menu():
 def get_username():
     username = session.get('usuario')
     return jsonify(username=username)
+
 
 @app.route('/procesar_dato', methods=['POST'])
 def procesar_dato():
@@ -874,6 +949,18 @@ def comprobarCoincidencia(lista1,lista2):
                     coincidencia = True
                     return track
                 
+
+
+@socketio.on('like')
+def recibir_like(data):
+    liked_user_id = data['liked_user_id']
+    liker_user_id = session.get('id')
+
+    if liked_user_id in chat_conexions:
+        emit('notificacion_like', {
+            'mensaje': f'¡{liker_user_id} te ha dado un corazón!',
+            'liker_id': liker_user_id
+        }, room=chat_conexions[liked_user_id])     
 
 # Ejecución de la aplicación
 if __name__ == '__main__':

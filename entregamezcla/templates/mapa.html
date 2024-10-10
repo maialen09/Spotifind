@@ -129,6 +129,8 @@
 
       const contentString = 
         `<div class="persona-${location.userId}" id="content" style="width: 150px; font-size: 12px;">
+        <img id="corazon-${location.userId}" src="../static/images/corazon_vacio.png" alt="Corazón" style="position: absolute; top: 15px; left: 10px; width: 20px; height: 20px; cursor: pointer;" onclick="cambiarImagen(this, '${location.userId}')">
+
           <div id="siteNotice"></div>
           <h1 id="firstHeading" class="firstHeading" style="font-size: 14px; margin-bottom: 5px;">Información del usuario</h1>
           <div id="bodyContent" style="padding: 5px;">
@@ -287,6 +289,7 @@ socket.on('new_user_location', function(location) {
 
     const contentString = 
       `<div class="persona-${location.userId}" id="content" style="width: 150px; font-size: 12px;">
+        <img id="corazon-${location.userId}" src="../static/images/corazon_vacio.png" alt="Corazón" style="position: absolute; top: 15px; left: 10px; width: 20px; height: 20px;cursor: pointer;" onclick="cambiarImagen(this, '${location.userId}')">
         <div id="siteNotice"></div>
         <h1 id="firstHeading" class="firstHeading" style="font-size: 14px; margin-bottom: 5px;">Información del usuario</h1>
         <div id="bodyContent" style="padding: 5px;">
@@ -338,6 +341,21 @@ socket.on('new_user_location', function(location) {
   }
 });
 
+function cambiarImagen(imagen, userId) {
+    // Cambiar la imagen a otra
+    if (imagen.src == "https://mt.spotifind.eus/static/images/corazon_vacio.png") {
+        imagen.src = "../static/images/corazon_lleno.png"; // Cambia a la nueva imagen
+        socket.emit('like', {
+          liked_user_id: userId
+        })
+    } else {
+        imagen.src = "../static/images/corazon_vacio.png"; // Vuelve a la imagen original
+    }
+
+   // Mandar al servidor que se le ha dado un me gusta 
+}
+
+
 function openChat(userId){
 
 socket.emit('get_user_id');
@@ -388,19 +406,68 @@ socket.emit('load_chat_history', roomName);
 }
 
 
-// Función para enviar un mensaje
 function sendMessage(roomName, userId) {
     const messageInput = document.getElementById(`chat-input-${roomName}`);
     const message = messageInput.value;
 
-    if (message.trim()) {
-        socket.emit('send_message', {
-            room_name: roomName,
-            message: message,
-            user_id: userId
+    // Verificar si el usuario está bloqueado
+    fetch('/bloqueos', {
+      method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ user_id: userId })
+    })
+        .then(response => response.json())
+        .then(data => {
+            const isBlocked = data.esta_bloqueado; // Aquí obtienes el valor booleano
+
+            if (isBlocked) {
+                alert("No puedes enviar un mensaje a un usuario bloqueado.");
+                return;
+            }
+
+            // Si pasa las comprobaciones, enviar el mensaje
+            if (message.trim()) {
+                socket.emit('send_message', {
+                    room_name: roomName,
+                    message: message,
+                    user_id: userId
+                });
+                messageInput.value = ''; // Limpiar el campo de entrada
+            }
+        })
+        .catch(error => {
+            console.error('Error al verificar el bloqueo:', error);
         });
-        messageInput.value = ''; // Limpiar el campo de entrada
-    }
+}
+
+socket.on('notificacion_like', function(data){
+  mostrarNotificacion(data.mensaje);
+});
+
+function mostrarNotificacion(mensaje) {
+    // Crear el contenedor de la notificación
+    const notificacion = document.createElement('div');
+    notificacion.style.position = 'fixed';
+    notificacion.style.top = '10px';
+    notificacion.style.right = '10px';
+    notificacion.style.backgroundColor = '#f1c40f';
+    notificacion.style.color = 'black';
+    notificacion.style.padding = '10px';
+    notificacion.style.borderRadius = '5px';
+    notificacion.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.1)';
+    notificacion.style.zIndex = '9999'; // Asegúrate de que el z-index sea alto
+    notificacion.style.border = '2px solid red'; // Agrega un borde temporal para probar visibilidad
+    notificacion.innerHTML = mensaje;
+
+    // Añadir la notificación al cuerpo del documento
+    document.body.appendChild(notificacion);
+
+    // Quitar la notificación después de 5 segundos
+    setTimeout(() => {
+        notificacion.remove();
+    }, 20000);
 }
 
 // Escuchar mensajes entrantes

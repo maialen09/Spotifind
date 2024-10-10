@@ -2,7 +2,6 @@ CREATE DATABASE IF NOT EXISTS SpotifusNueva;
 
 USE SpotifusNueva;
 
-
 CREATE TABLE IF NOT EXISTS Usuarios (
     nombre VARCHAR(50) NOT NULL,
     contrasena VARCHAR(100) NOT NULL,
@@ -20,7 +19,7 @@ CREATE TABLE IF NOT EXISTS mensajes (
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS Opciones(
+CREATE TABLE IF NOT EXISTS Opciones (
     user_id VARCHAR(200) PRIMARY KEY,
     cuerpo_categoria VARCHAR(50),
     ojos_categoria VARCHAR(50),
@@ -35,7 +34,17 @@ CREATE TABLE IF NOT EXISTS Opciones(
     pantalones_color VARCHAR(50),
     zapatillas VARCHAR(50),
     accesorio VARCHAR(50)
-)
+);
+
+CREATE TABLE IF NOT EXISTS Bloqueos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    bloqueador VARCHAR(200),
+    bloqueado VARCHAR(200),
+    UNIQUE(bloqueador, bloqueado)
+);
+
+
+
 
 
 

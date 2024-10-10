@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloquear a un usuario</title>
+    <script src="../static/bloquear.js"></script>
+</head>
+<body>
+
+    <div>
+        
+            {% for elemento in rooms %}
+                <button type="button" class="bloquear.btn" onclick="bloquear(this.innerText)"> {{elemento }} </button>
+ 
+             {% endfor %}
+  
+
+        
+        
+    </div>
+
+  
+    
+</body>
+</html>
