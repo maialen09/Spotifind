@@ -540,5 +540,26 @@ document.addEventListener('DOMContentLoaded', () => {
     
        
     });
+
+    document.getElementById('reestablecer').addEventListener('click', () => { 
+
+        categories = ["body_type", "ojos", "gafas", "bocas", "camisetas", "pelos", "zapatillas", "accesorios", "pantalones"]
+
+        
+        categories.forEach((category) => {
+            const radioButtons = document.querySelectorAll(`input[name="${category}"]`);
+            radioButtons.forEach((radio) => {
+                radio.checked = false;  // Desmarcar el radio
+                radio.dataset.wasChecked = 'false';  // Reiniciar el estado
+                updateImage(radio.dataset.category, null);  // Eliminar la imagen
+            });
+        });
+
+        selectFirstBody();
+
+
+
+
+    });
     
 });
