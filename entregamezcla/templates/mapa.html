@@ -129,7 +129,7 @@
 
       const contentString = 
         `<div class="persona-${location.userId}" id="content" style="width: 150px; font-size: 12px;">
-        <img id="corazon-${location.userId}" src="../static/images/corazon_vacio.png" alt="Corazón" style="position: absolute; top: 15px; left: 10px; width: 20px; height: 20px; cursor: pointer;" onclick="cambiarImagen(this, '${location.userId}')">
+        <img id="corazon-${location.userId}" src="../static/images/corazon_vacio.png" alt="Corazón" style="position: absolute; top: 15px; left: 10px; width: 20px; height: 20px; cursor: pointer;" onclick="cambiarImagen(this, '${location.userId}', '${location.username}')">
 
           <div id="siteNotice"></div>
           <h1 id="firstHeading" class="firstHeading" style="font-size: 14px; margin-bottom: 5px;">Información del usuario</h1>
@@ -289,7 +289,7 @@ socket.on('new_user_location', function(location) {
 
     const contentString = 
       `<div class="persona-${location.userId}" id="content" style="width: 150px; font-size: 12px;">
-        <img id="corazon-${location.userId}" src="../static/images/corazon_vacio.png" alt="Corazón" style="position: absolute; top: 15px; left: 10px; width: 20px; height: 20px;cursor: pointer;" onclick="cambiarImagen(this, '${location.userId}')">
+        <img id="corazon-${location.userId}" src="../static/images/corazon_vacio.png" alt="Corazón" style="position: absolute; top: 15px; left: 10px; width: 20px; height: 20px;cursor: pointer;" onclick="cambiarImagen(this, '${location.userId}', '${location.username}')">
         <div id="siteNotice"></div>
         <h1 id="firstHeading" class="firstHeading" style="font-size: 14px; margin-bottom: 5px;">Información del usuario</h1>
         <div id="bodyContent" style="padding: 5px;">
@@ -341,12 +341,13 @@ socket.on('new_user_location', function(location) {
   }
 });
 
-function cambiarImagen(imagen, userId) {
+function cambiarImagen(imagen, userId, username) {
     // Cambiar la imagen a otra
     if (imagen.src == "https://mt.spotifind.eus/static/images/corazon_vacio.png") {
         imagen.src = "../static/images/corazon_lleno.png"; // Cambia a la nueva imagen
         socket.emit('like', {
-          liked_user_id: userId
+          liked_user_id: userId, 
+          liked_username : username
         })
     } else {
         imagen.src = "../static/images/corazon_vacio.png"; // Vuelve a la imagen original

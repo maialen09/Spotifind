@@ -954,11 +954,13 @@ def comprobarCoincidencia(lista1,lista2):
 @socketio.on('like')
 def recibir_like(data):
     liked_user_id = data['liked_user_id']
+    liked_username = data['liked_username']
+    liker_username = session.get('usuario')
     liker_user_id = session.get('id')
 
     if liked_user_id in chat_conexions:
         emit('notificacion_like', {
-            'mensaje': f'¡{liker_user_id} te ha dado un corazón!',
+            'mensaje': f'¡{liker_username} te ha dado un corazón!',
             'liker_id': liker_user_id
         }, room=chat_conexions[liked_user_id])     
 
