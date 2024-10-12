@@ -5,7 +5,7 @@ USE SpotifusNueva;
 CREATE TABLE IF NOT EXISTS Usuarios (
     nombre VARCHAR(50) NOT NULL,
     contrasena VARCHAR(100) NOT NULL,
-    display_name VARCHAR(100) NOT NULL,
+    display_name VARCHAR(100),
     PRIMARY KEY (nombre), 
     ruta_imagen LONGBLOB 
 );

@@ -89,7 +89,6 @@ def insertar_usuario(nombre, contrasena, imagen, display_name):
         # Si el usuario no existe, insertarlo
         if count == 0:
             if (imagen == ""):
-                #imagen = "https://img.pokemondb.net/sprites/bank/normal/tangela.png"
                 query = "INSERT INTO Usuarios(nombre, contrasena, display_name) VALUES (%s, %s, %s)"
                 cursor.execute(query, (nombre, contrasena, display_name))
                 conn.commit()
@@ -602,6 +601,10 @@ def get_username():
     username = session.get('usuario')
     return jsonify(username=username)
 
+@app.route('/obtener_id', methods=['POST'])
+def obtener_id():
+    user_id = session.get('id')
+    return jsonify(user_id)
 
 @app.route('/procesar_dato', methods=['POST'])
 def procesar_dato():
@@ -949,6 +952,21 @@ def comprobarCoincidencia(lista1,lista2):
                     coincidencia = True
                     return track
                 
+
+@socketio.on('chat_notificacion')
+def recibir_chat(data):
+    destinatario = data['destinatario_id']
+    mensaje = data['message']
+    r_username = session.get('usuario')
+    r_user_id = session.get('id')
+
+
+
+    if destinatario in chat_conexions:
+        emit('notificacion_like', {
+            'mensaje': f'¡{r_username} te ha enviado un mensaje:  ' + mensaje,
+            'liker_id': r_user_id
+        }, room=chat_conexions[destinatario]) 
 
 
 @socketio.on('like')

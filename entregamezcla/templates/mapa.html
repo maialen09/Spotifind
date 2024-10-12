@@ -408,6 +408,9 @@ socket.emit('load_chat_history', roomName);
 
 
 function sendMessage(roomName, userId) {
+  console.log("estoyentrando");
+  console.log(roomName);
+  console.log(userId);
     const messageInput = document.getElementById(`chat-input-${roomName}`);
     const message = messageInput.value;
 
@@ -436,7 +439,15 @@ function sendMessage(roomName, userId) {
                     user_id: userId
                 });
                 messageInput.value = ''; // Limpiar el campo de entrada
+
+                // Mandar notificación de que se ha mandado un mensaje 
+                socket.emit('chat_notificacion', {
+                      destinatario_id: userId, 
+                      message : message
+                });
             }
+
+            
         })
         .catch(error => {
             console.error('Error al verificar el bloqueo:', error);
@@ -620,31 +631,55 @@ socket.on('user_chats', function(data) {
 });
 
 function openChatFromHistory(roomName) {
-    // Si ya existe una ventana de chat abierta para esta sala, no la volvemos a abrir
-    if (activeChats[roomName]) {
-        return;
-    }
+    // Hacer una petición al servidor para obtener el user_id
+    fetch('/obtener_id', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())  // Interpretar la respuesta como JSON
+    .then(currentUserId => {
+        console.log(currentUserId)  // currentUserId es el valor obtenido desde el servidor
+        const [userA, userB] = roomName.split('-');
+        let otherUserId;
 
-    // Crear la ventana de chat
-    const chatWindow = document.createElement('div');
-    chatWindow.classList.add('chat-window');
-    chatWindow.innerHTML = 
-        `<div class="chat-header">
-            Sala de chat ${roomName}
-            <button class="close-chat-btn" onclick="closeChat('${roomName}')">&times;</button>
-        </div>
-        <div class="chat-messages" id="chat-messages-${roomName}"></div>
-        <input type="text" id="chat-input-${roomName}" placeholder="Escribe un mensaje..." />
-        <button onclick="sendMessage('${roomName}', null)">Enviar</button>`;
+        // Verificar cuál es el otro usuario en la sala
+        if (currentUserId === userA) {
+            otherUserId = userB;  // Si el usuario actual es userA, entonces userB es el otro usuario
+        } else {
+            otherUserId = userA;  // Si el usuario actual es userB, entonces userA es el otro usuario
+        }
 
-    document.body.appendChild(chatWindow);
-    activeChats[roomName] = chatWindow;
+        // Si ya existe una ventana de chat abierta para esta sala, no la volvemos a abrir
+        if (activeChats[roomName]) {
+            return;
+        }
 
-    // Unirse a la sala de chat
-    socket.emit('join_room', { room_name: roomName, user_id: sessionStorage.getItem('user_id') });
+        // Crear la ventana de chat
+        const chatWindow = document.createElement('div');
+        chatWindow.classList.add('chat-window');
+        chatWindow.innerHTML = 
+            `<div class="chat-header">
+                Sala de chat ${roomName}
+                <button class="close-chat-btn" onclick="closeChat('${roomName}')">&times;</button>
+            </div>
+            <div class="chat-messages" id="chat-messages-${roomName}"></div>
+            <input type="text" id="chat-input-${roomName}" placeholder="Escribe un mensaje..." />
+            <button onclick="sendMessage('${roomName}', '${otherUserId}')">Enviar</button>`;
 
-    // Cargar los mensajes guardados desde la base de datos
-    socket.emit('load_chat_history', roomName);
+        document.body.appendChild(chatWindow);
+        activeChats[roomName] = chatWindow;
+
+        // Unirse a la sala de chat
+        socket.emit('join_room', { room_name: roomName, user_id: currentUserId });
+
+        // Cargar los mensajes guardados desde la base de datos
+        socket.emit('load_chat_history', roomName);
+    })
+    .catch(error => {
+        console.error('Error al obtener el user_id:', error);
+    });
 }
 
 

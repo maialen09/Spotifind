@@ -292,8 +292,7 @@ function obtenerOpciones(){
             data = data[0];
             Object.keys(data).forEach(category => {
             const selectedValue = data[category];  // Obtiene el valor seleccionado
-            console.log("selectedValue:", selectedValue);
-            console.log("category:", category);
+            
             if (selectedValue) {
                 if (category == "accesorio"){
                     category = "accesorios"
@@ -345,7 +344,6 @@ function obtenerOpciones(){
                 
                     category = "camisetas";
                     colorCamiseta = data.camiseta_color;
-                    console.log("colorCamiseta:", colorCamiseta);
                     const camisetaRadio = document.querySelector(`input[name="camisetas"][value="${colorCamiseta}"][id="${selectedValue}"]`);
                     camisetaRadio.checked = true;
                     if (colorCamiseta == "manga_corta"){colorCamiseta = "camiseta_manga_corta"}
@@ -365,12 +363,15 @@ function obtenerOpciones(){
                     
                 }
 
-                else if (category == "pantalon_categoria"){
+                else if (category == "pantalones_categoria"){
                     category = "pantalones";
-                    const colorPantalon = data.pantalon_color;
-                    const pantalonRadio = document.querySelector(`input[name="pantalones"][value="${colorPantalon}"][id="${selectedValue}"]`);
+                    console.log("selectedValue:", selectedValue);
+                    console.log("category:", category);
+                    const colorPantalon = data.pantalones_color;
+                    console.log("colopantalon:" , colorPantalon)
+                    const pantalonRadio = document.querySelector(`input[name="pantalones"][value="${selectedValue}"][id="${colorPantalon}"]`);
                     pantalonRadio.checked = true;
-                    updateImage(colorPantalon, selectedValue);
+                    updateImage(selectedValue, colorPantalon);
                     
                 }
                
