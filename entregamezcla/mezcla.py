@@ -573,11 +573,12 @@ def cambiar_usuario():
 @app.route('/bloquear')
 def bloquear():
     rooms = obtener_rooms(session.get('id'))
+    user_id = session.get('id')
     amigos = set()
     for room in rooms: 
         cadena = room[0]
         partes = cadena.split('-')
-        amigos.update(partes)
+        amigos.update({amigo for amigo in partes if amigo != user_id})
 
     amigos = list(amigos)
 

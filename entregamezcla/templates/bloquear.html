@@ -4,24 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bloquear a un usuario</title>
+    <link rel="stylesheet" href="../static/bloquear.css">
     <script src="../static/bloquear.js"></script>
 </head>
 <body>
-
-    <div>
+    <div class="container">
+        <h1>Bloquear a un Usuario</h1>
         
+        <div class="botones-container">
             {% for elemento in rooms %}
-                <button type="button" class="bloquear.btn" onclick="bloquear(this.innerText)"> {{elemento }} </button>
- 
+                <button type="button" class="bloquear-btn" onclick="bloquear(this.innerText)"> 
+                    {{ elemento }} 
+                </button>
              {% endfor %}
+        </div>
 
-        
+        <button type="button" class="perfil-btn" onclick="volverAlPerfil()">Perfil</button>
     </div>
-
-    <button type="button" onclick="volverAlPerfil()">Perfil</button>
-
-
-  
-    
 </body>
 </html>

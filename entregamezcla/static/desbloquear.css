@@ -1,0 +1,61 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4; /* Color de fondo suave */
+    margin: 0; /* Elimina el margen por defecto */
+    display: flex; /* Utiliza flexbox para centrar */
+    justify-content: center; /* Centra horizontalmente */
+    align-items: center; /* Centra verticalmente */
+    height: 100vh; /* Toma toda la altura de la ventana */
+}
+
+.container {
+    background-color: #fff; /* Color de fondo blanco */
+    padding: 20px; /* Espaciado interno */
+    border-radius: 8px; /* Bordes redondeados */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    text-align: center; /* Centra el texto */
+    width: 400px; /* Ancho máximo del contenedor */
+}
+
+h1 {
+    font-size: 24px; /* Tamaño de fuente para el título */
+    margin-bottom: 20px; /* Espacio debajo del título */
+}
+
+.botones-container {
+    display: flex; /* Utiliza flexbox para organizar botones */
+    flex-direction: column; /* Coloca los botones en una columna */
+    gap: 10px; /* Espacio entre botones */
+}
+
+.desbloquear-btn{
+    padding: 10px; /* Espaciado interno */
+    background-color: #4CAF50; /* Color de fondo verde */
+    color: white; /* Color del texto */
+    border: none; /* Sin bordes */
+    border-radius: 4px; /* Bordes redondeados */
+    cursor: pointer; /* Cambia el cursor al pasar por encima */
+    transition: background-color 0.3s; /* Transición suave al cambiar el color */
+    font-size: 16px; /* Tamaño de fuente */
+}
+
+.perfil-btn{
+    padding: 10px; /* Espaciado interno */
+    background-color: blue; /* Color de fondo verde */
+    color: white; /* Color del texto */
+    border: none; /* Sin bordes */
+    border-radius: 4px; /* Bordes redondeados */
+    cursor: pointer; /* Cambia el cursor al pasar por encima */
+    transition: background-color 0.3s; /* Transición suave al cambiar el color */
+    font-size: 16px; /* Tamaño de fuente */
+
+
+}
+
+.desbloquear-btn:hover {
+    background-color: #45a049; /* Color más oscuro al pasar el ratón */
+}
+
+.perfil-btn {
+    margin-top: 20px; /* Espacio superior para el botón de perfil */
+}

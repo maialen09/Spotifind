@@ -473,13 +473,30 @@ function mostrarNotificacion(mensaje) {
     notificacion.style.border = '2px solid red'; // Agrega un borde temporal para probar visibilidad
     notificacion.innerHTML = mensaje;
 
+    const botonCerrar = document.createElement('button');
+    botonCerrar.innerHTML = 'X';
+    botonCerrar.style.marginLeft = '10px'; // Espacio a la izquierda del botón
+    botonCerrar.style.backgroundColor = 'transparent'; // Fondo transparente
+    botonCerrar.style.border = 'none'; // Sin borde
+    botonCerrar.style.color = 'black'; // Color del texto
+    botonCerrar.style.cursor = 'pointer'; // Cambiar cursor al pasar por encima
+    botonCerrar.onclick = () => {
+        notificacion.remove(); // Eliminar la notificación al hacer clic en el botón
+    };
+
     // Añadir la notificación al cuerpo del documento
+    notificacion.appendChild(botonCerrar);
     document.body.appendChild(notificacion);
 
     // Quitar la notificación después de 5 segundos
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
         notificacion.remove();
     }, 20000);
+
+    botonCerrar.onclick = () => {
+        clearTimeout(timeoutId); // Limpiar el timeout
+        notificacion.remove(); // Eliminar la notificación
+    };
 }
 
 // Escuchar mensajes entrantes

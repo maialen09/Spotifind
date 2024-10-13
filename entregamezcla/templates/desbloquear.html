@@ -4,18 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Desbloquear</title>
+    <link rel="stylesheet" href="../static/desbloquear.css">
     <script src="../static/desbloquear.js"></script>
+
 </head>
 <body>
-    <div>
-        
-        {% for elemento in bloqueados %}
+    <div class="container">
+        <h1>Desbloquear a un Usuario</h1>
+        <div class="botones-container">
+
+            {% for elemento in bloqueados %}
             <button type="button" class="desbloquear.btn" onclick="desbloquear(this.innerText)"> {{elemento }} </button>
 
-         {% endfor %}
+            {% endfor %}
 
-</div>
-<button type="button" onclick="volverAlPerfil()">Perfil</button>
-    
+        </div>
+  
+       <button type="button" class="perfil-btn" onclick="volverAlPerfil()">Perfil</button>
+    </div>
+
 </body>
 </html>
