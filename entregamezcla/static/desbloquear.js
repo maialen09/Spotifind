@@ -14,3 +14,8 @@ function desbloquear(user_id){
     .catch(error => console.error('Error:', error));
 
 }
+
+function volverAlPerfil(){
+    window.location.href = `/opciones`;
+
+}

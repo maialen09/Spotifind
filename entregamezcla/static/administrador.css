@@ -35,3 +35,7 @@ button:hover {
     background-color: #45a049;
 }
 
+#mensajeError{
+
+    color: red; 
+}

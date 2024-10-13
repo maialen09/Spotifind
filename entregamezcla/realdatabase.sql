@@ -43,6 +43,17 @@ CREATE TABLE IF NOT EXISTS Bloqueos (
     UNIQUE(bloqueador, bloqueado)
 );
 
+CREATE TABLE IF NOT EXISTS Administradores (
+    nombre VARCHAR(100) NOT NULL,
+    contrasena VARCHAR(100) NOT NULL,
+    PRIMARY KEY (nombre)
+);
+
+
+INSERT INTO Administradores (nombre, contrasena)
+VALUES 
+('admin1', 'contrasena1'),
+('admin2', 'contrasena2');
 
 
 

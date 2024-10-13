@@ -11,12 +11,47 @@
     <div class="login-container"></div>
         <h2>Login</h2>
         
-            <input type="text" name="username" placeholder="Usuario" required>
-            <input type="password" name="password" placeholder="Contraseña" required>
-            <form action="{{ url_for('menu') }}" method="GET">
-                <button class="boton" type="submit">Entrar</button>
-            </form>
+            <input type="text" id="username"  name="username" placeholder="Usuario" required>
+            <input type="password" id="password" name="password" placeholder="Contraseña" required>     
+            <button class="boton" type="button" onclick="comprobarAdministrador()">Entrar</button>
+         
         
     </div>
+
+    <div id="mensajeError"></div>
 </body>
+
+<script>
+    function comprobarAdministrador(){
+        
+        var username = document.getElementById('username').value;
+        var password = document.getElementById('password').value;
+
+        fetch('/comprobar_admin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username: username, 
+                    password : password
+                 }) // Enviar el valor en formato JSON
+            })
+            .then(response => response.json()) // Parsear la respuesta como JSON
+            .then(data => {
+                // comprobar si el admin es correcto o no 
+                if (data.resultado){
+                    document.getElementById('mensajeError').textContent = "";
+                    window.location.href = `/menu`;
+
+                }
+                else{
+                    document.getElementById('mensajeError').textContent = "Usuario o contraseña incorrectos.";
+                }
+            })
+            .catch(error => console.error('Error al enviar el dato:', error));
+        }
+
+
+    
+</script>
 </html>

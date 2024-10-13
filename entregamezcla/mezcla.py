@@ -109,6 +109,20 @@ def eliminar_usuario(user_id):
         cursor.execute(query,(user_id,))
         conn.commit()
 
+def eliminar_opciones_usuario(user_id): 
+      with mysql.connector.connect(**db_config) as conn:
+        cursor = conn.cursor()
+        query = "DELETE FROM Opciones WHERE user_id = %s"
+        cursor.execute(query,(user_id,))
+        conn.commit()
+
+def verificar_usuario(nombre, contrasena):
+    with mysql.connector.connect(**db_config) as conn:
+        cursor = conn.cursor()
+        query = "SELECT * FROM Administradores WHERE nombre = %s AND contrasena = %s"
+        cursor.execute(query, (nombre, contrasena))
+        resultado = cursor.fetchone()  
+    return resultado is not None
 
 ## insertar la imagen que se ha elegido en la ventana de personalizacion
 def insertar_imagen(nombre_usuario, imagen):
@@ -376,9 +390,18 @@ def eliminar_usuario_ruta():
     user_id = request.json['user_id']
     print("El usuario es :", user_id)
     eliminar_usuario(user_id)
+    eliminar_opciones_usuario(user_id)
     ## hay que eliminar tambien los chats y opciones de este usuario
     return jsonify({"message": f"Usuario {user_id} eliminado correctamente."})  
     
+
+@app.route('/comprobar_admin', methods=['POST'])
+def comprobar_admin():
+    user_id = request.json['username']
+    contrasena = request.json['password']
+    admin = verificar_usuario(user_id, contrasena)
+    return jsonify({"resultado": admin})
+
 
 @app.route('/')
 def index():

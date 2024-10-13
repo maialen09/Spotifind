@@ -12,6 +12,7 @@
     <form id="myForm"></form>
         <input type="text" id="textInput" placeholder="Escribe tu nombre aquí">
         <button type="button" onclick="sendInputToServer()">Enviar</button>
+        <button type="button" onclick="volverAlPerfil()">Perfil</button>
     </form>
 
     <p id="output"></p>
@@ -37,6 +38,12 @@
             })
             .catch(error => console.error('Error al enviar el dato:', error));
         }
+
+        function volverAlPerfil(){
+            window.location.href = `/opciones`;
+
+        }
+        
     </script>
     
 </body>
