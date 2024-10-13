@@ -989,7 +989,9 @@ def recibir_chat(data):
     if destinatario in chat_conexions:
         emit('notificacion_like', {
             'mensaje': f'¡{r_username} te ha enviado un mensaje:  ' + mensaje,
-            'liker_id': r_user_id
+            'liker_id': r_user_id,
+            'liked_id': destinatario,
+            'corazon': False
         }, room=chat_conexions[destinatario]) 
 
 
@@ -1003,7 +1005,8 @@ def recibir_like(data):
     if liked_user_id in chat_conexions:
         emit('notificacion_like', {
             'mensaje': f'¡{liker_username} te ha dado un corazón!',
-            'liker_id': liker_user_id
+            'liker_id': liker_user_id,
+            'corazon': True
         }, room=chat_conexions[liked_user_id])     
 
 # Ejecución de la aplicación

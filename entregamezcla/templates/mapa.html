@@ -455,10 +455,38 @@ function sendMessage(roomName, userId) {
 }
 
 socket.on('notificacion_like', function(data){
+
+  if (data.corazon){
+
   mostrarNotificacion(data.mensaje);
+
+
+  }
+
+  else{
+    
+   const user1 = data.liked_id
+   const user2 = data.liker_id 
+
+   combinedId = `${user1}-${user2}`;
+
+   if (!activeChats.hasOwnProperty(combinedId)){
+
+     combinedId = `${user2}-${user1}`;
+
+
+     if (! activeChats.hasOwnProperty(combinedId)){
+
+        mostrarNotificacion(data.mensaje)
+     }
+   }
+
+  }
+
 });
 
 function mostrarNotificacion(mensaje) {
+  console.log(activeChats);
     // Crear el contenedor de la notificación
     const notificacion = document.createElement('div');
     notificacion.style.position = 'fixed';
