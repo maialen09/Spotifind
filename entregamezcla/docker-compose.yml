@@ -13,7 +13,7 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: calavera
-      MYSQL_DATABASE: SpotifusNueva
+      MYSQL_DATABASE: Spotifind
       MYSQL_USER: mai
       MYSQL_PASSWORD: calavera
     ports:

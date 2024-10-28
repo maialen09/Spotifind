@@ -4,10 +4,7 @@
     right: 500px; /* Lo desplaza hacia la derecha */
     width: 200px; /* Ajusta el ancho del contenedor de imágenes */
     height: 400px; /* Ajusta el alto del contenedor de imágenes */
-    border: 2px solid #ccc; /* Bordes suaves */
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    
     /*border: 2px solid #ccc; /* Bordes opcionales para visualizar el contenedor */
     z-index: 10; /
 }
@@ -42,7 +39,7 @@ button {
     font-size: 16px;
     border-radius: 5px;
     cursor: pointer;
-    margin: 10px 5px;
+    margin: 35px 5px;
     
 }
 

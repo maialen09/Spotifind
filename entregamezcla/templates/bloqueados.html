@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuarios Bloqueados</title>
+</head>
+<body>
+    <h1>Lista de Usuarios Bloqueados</h1>
+    
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Usuario Bloqueado</th>
+                <th>Número de Bloqueos</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bloqueado, numero_bloqueos in lista_elementos %}
+            <tr>
+                <td>{{ bloqueado }}</td>
+                <td>{{ numero_bloqueos }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="2">No hay usuarios bloqueados.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

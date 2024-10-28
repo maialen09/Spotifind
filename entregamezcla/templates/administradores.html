@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administradores</title>
+    <link rel="stylesheet" href="../static/administradores.css">
+
+</head>
+<body>
+    <div class="container">
+        <h1>Lista de Administradores</h1>
+        <div class="botones-container">
+
+            {% for administrador in lista %}
+            <p> {{administrador }} </p>
+
+            {% endfor %}
+
+        </div>
+  
+       <button id="boton-insertar" type="button" onclick="insertarUsuario(event)">Insertar Administrador</button>
+
+    </div>
+
+    <div id="menu-opciones" class="menu-opciones">
+        <input type="text" id="username"  name="username" placeholder="Usuario" required>
+        <input type="password" id="password" name="password" placeholder="Contraseña" required>     
+        <button onclick="ejecutarAccion()">Insertar usuario </button>
+    </div>
+
+    <script> 
+
+    function insertarUsuario(event){
+        var menu = document.getElementById('menu-opciones');
+    
+    // Mostrar el menú
+    menu.style.display = 'block';
+    
+    // Posicionarlo según la posición del clic
+    menu.style.top = event.clientY + 'px';
+    menu.style.left = event.clientX + 'px';
+    
+
+    }
+
+    function ejecutarAccion(){
+        var username = document.getElementById('username').value;
+        var password = document.getElementById('password').value;
+
+        console.log(username)
+        console.log(password)
+
+        fetch('/insertar_admin', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username: username, 
+            password: password
+         })  // Enviar el nombre del admin al servidor
+    })
+    .then(response => response.json())
+    .then(data => {
+        window.location.reload();  // Recargar la página después de eliminar el usuario
+    })
+    .catch(error => console.error('Error:', error));
+
+
+
+    }
+
+
+    </script>
+    
+</body>
+</html>

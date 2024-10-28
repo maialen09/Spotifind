@@ -1,7 +1,7 @@
 .chat-window {
     width: 300px;
     height: 400px;
-    border: 2px solid #007BFF; /* Borde azul */
+    border: 2px solid #D3D3D3; /* Borde azul */
     border-radius: 10px;
     background-color: #E8F0FE; /* Fondo azul claro */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -16,7 +16,7 @@
 
 /* Estilo para el encabezado del chat */
 .chat-header {
-    background-color: #007BFF; /* Azul oscuro */
+    background-color: #D3D3D3; /* Azul oscuro */
     color: white;
     padding: 10px;
     border-radius: 10px 10px 0 0;
@@ -45,7 +45,7 @@
 
 /* Mensajes enviados por el usuario actual */
 .chat-message-user {
-    background-color: #007BFF; /* Azul oscuro */
+    background-color: #D3D3D3; /* Azul oscuro */
     color: white;
     padding: 10px;
     border-radius: 15px;
@@ -57,7 +57,7 @@
 
 /* Mensajes recibidos de la otra persona */
 .chat-message-other {
-    background-color: #B3D9FF; /* Azul muy claro */
+    background-color: #75cd9b; /* Azul muy claro */
     color: black;
     padding: 10px;
     border-radius: 15px;
@@ -70,20 +70,20 @@
 .chat-input {
     display: flex;
     align-items: center;
-    border-top: 1px solid #007BFF;
+    border-top: 1px solid #D3D3D3;
     padding-top: 10px;
 }
 
 .chat-input input {
     flex: 1;
     padding: 10px;
-    border: 1px solid #007BFF;
+    border: 1px solid #D3D3D3;
     border-radius: 5px;
     margin-right: 10px;
 }
 
 .chat-input button {
-    background-color: #007BFF;
+    background-color: #D3D3D3;
     color: white;
     border: none;
     padding: 10px 15px;
@@ -92,13 +92,13 @@
 }
 
 .chat-input button:hover {
-    background-color: #0056b3; /* Azul más oscuro */
+    background-color: #D3D3D3; /* Azul más oscuro */
 }
 
 /* Botón o ícono para abrir la lista de chats */
 .chat-toggle {
     position: fixed;
-    top: 30px;
+    top: 47px;
     left: 20px;
 }
 
@@ -107,21 +107,49 @@
     background-color: transparent;
     border: none;
     cursor: pointer;
-    color: #5533ff;
+    color: #D3D3D3;
 }
 
 .perfil-opciones{
     position: fixed;
-    top: 70px;
+    top: 90px;
     left: 20px;
 
 }
+#boton-perfil {
+    background-color: #4CAF50; /* Color verde para el fondo */
+    color: white; /* Color del texto */
+    border: none; /* Sin borde */
+    border-radius: 5px; /* Bordes redondeados */
+    padding: 10px 20px; /* Espaciado interno */
+    font-size: 16px; /* Tamaño de fuente */
+    cursor: pointer; /* Cambia el cursor al pasar el mouse */
+    transition: background-color 0.3s, transform 0.3s; /* Transiciones suaves */
+    text-decoration: none; /* Sin subrayado */
+    display: flex; /* Permite al icono y texto estar en línea */
+    align-items: center; /* Centra verticalmente el icono y el texto */
+    justify-content: center; /* Centra horizontalmente el contenido */
+}
+
+#boton-perfil:hover {
+    background-color: #45a049; /* Color verde más oscuro al pasar el mouse */
+    transform: scale(1.05); /* Aumenta ligeramente el tamaño al pasar el mouse */
+}
+
+#boton-perfil:focus {
+    outline: none; /* Sin borde al hacer foco */
+}
+
+.perfil-icon i {
+    margin-right: 8px; /* Espacio entre el icono y el texto */
+}
+
 
 /* Contenedor de la lista de chats */
 .chat-list-container {
     width: 300px;
     height: 100vh;
-    background-color: #5533ff;
+    background-color: #D3D3D3;
     position: fixed;
     top: 0;
     left: 0;
@@ -129,6 +157,23 @@
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
     transition: transform 0.3s ease;
+}
+#search-container {
+    display: flex;
+    align-items: center; /* Centra verticalmente la lupa y el input */
+    margin-top: 20px;
+    margin-bottom: 20px; /* Espacio debajo del buscador */
+}
+
+#lupa {
+    margin-right: 10px; /* Espacio entre la lupa y el input */
+    font-size: 20px; /* Tamaño de la lupa */
+}
+
+#buscador {
+    flex-grow: 1; /* Hace que el input ocupe todo el espacio restante */
+    padding: 5px;
+    font-size: 16px; /* Ajusta el tamaño del texto */
 }
 
 /* Ocultar la lista de chats inicialmente */

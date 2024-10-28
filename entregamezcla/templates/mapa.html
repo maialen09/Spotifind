@@ -28,12 +28,16 @@
   <div class="perfil-opciones">
   <a href="{{ url_for('opciones')}}">   
     <button id="boton-perfil" class="perfil-icon" type="button">
-      <i class="fi fi-bs-user"></i> Perfil
-    </button>
+      <i class="fi fi-bs-user"></i> Perfil  Usuario</button>
   </a>
   </div>
   <div id="chat-list-container" class="chat-list-container hidden">
-    <input type="text" id="buscador" onkeyup="filtrarChats()" placeholder="Buscar chats...">
+    <div id="search-container">  
+
+      <div id="lupa">🔎</div>
+      <input type="text" id="buscador" onkeyup="filtrarChats()" placeholder="Buscar chats...">
+
+    </div>
     <button id="close-chat-list" class="close-chat-list-btn">&times;</button> 
     <ul id="chat-list"></ul>
   </div>
@@ -52,7 +56,7 @@
       let markers = {}; // Almacenar los marcadores de los usuarios conectados
       let activeChats = {};
     
-      function initMap() {
+function initMap() {
         // Crear el mapa con una ubicación predeterminada
         map = new google.maps.Map(document.getElementById('map'), {
           center: { lat: -34.397, lng: 150.644 },
@@ -88,7 +92,7 @@
         // Manejar tanto las ubicaciones iniciales de los usuarios conectados como las actualizaciones
        
       }
-      socket.on('update_user_locations', function(locations) {
+socket.on('update_user_locations', function(locations) {
   locations.forEach(function(location) {
     if (!markers[location.userId]) {
 
@@ -128,7 +132,7 @@
       markers[location.userId] = marker;
 
       const contentString = 
-        `<div class="persona-${location.userId}" id="content" style="width: 150px; font-size: 12px;">
+        `<div class="persona-${location.userId}" id="content" style="width: 150px; font-size: 12px; border: 2px solid green; padding: 10px; border-radius: 5px;">
         <img id="corazon-${location.userId}" src="../static/images/corazon_vacio.png" alt="Corazón" style="position: absolute; top: 15px; left: 10px; width: 20px; height: 20px; cursor: pointer;" onclick="cambiarImagen(this, '${location.userId}', '${location.username}')">
 
           <div id="siteNotice"></div>
@@ -160,14 +164,14 @@
 
         const cantanteBoton = document.getElementById(`button-cancion`);
         cantanteBoton.addEventListener('click', () => {
-          socket.emit('canciones_mas_escuchadas', location.userId);
+          socket.emit('canciones_mas_escuchadas', {'userId':location.userId});
             
 
         });
 
         const cancionBoton = document.getElementById(`button-cantante`);
         cancionBoton.addEventListener('click', () => {
-          socket.emit('cantante_en_comun', location.userId);
+          socket.emit('cantante_en_comun', {'userId':location.userId});
             
 
         });
@@ -180,53 +184,51 @@
     }
   });
 });
-
        
-socket.on('track', function(track) {
-    const trackContainer = document.getElementById('track-info');
+socket.on('track', function(data) {
+  const userId = data.userId;  // El userId que viene del servidor
+  const contentElement = document.querySelector(`.persona-${userId}`);
 
-    if (track.status === 'match') {
-        // Si hay coincidencia, mostrar la imagen, nombre y artista
-        trackContainer.innerHTML = `
-            <div>
-                <button class="close-btn" onclick="closeWindow('track-info')">X</button>
-                <img src="${track.image_url}" alt="Portada del Álbum" style="width: 200px; height: 200px;">
-                <h2>Canción: ${track.name}</h2>
-                <h3>Artista: ${track.artist}</h3>
-            </div>
-        `;
-    } else if (track.status === 'no_match') {
-        // Si no hay coincidencia, mostrar mensaje
-        trackContainer.innerHTML = `
-            <div>
-                <button class="close-btn" onclick="closeWindow('track-info')">X</button>
-                <h2>${track.message}</h2>
-            </div>
-        `;
+  if (contentElement) {
+    if (data.status === 'match') {
+      // Actualiza el contenido del infowindow solo para el usuario correspondiente
+      contentElement.innerHTML += `
+        <div class="track-container" style="margin-top: 10px;">
+          <p><b>Canción en común:</b> ${data.name}</p>
+          <p><b>Artista:</b> ${data.artist}</p>
+          <img src="${data.image_url}" alt="Imagen del álbum" style="width: 50px; height: 50px;">
+        </div>`;
+    } else {
+      // Si no hay coincidencias, muestra el mensaje de 'no_match'
+      contentElement.innerHTML += `
+        <div class="track-container" style="margin-top: 10px;">
+          <p>${data.message}</p>
+        </div>`;
     }
+  }
 });
 
-socket.on('artist', function(artist) {
-    const artistContainer = document.getElementById('artist-info');
+socket.on('artist', function(data) {
+  imprimir(data)
+  const userId = data.userId;  // El userId que viene del servidor
+  const contentElement = document.querySelector(`.persona-${userId}`);
 
-    if (artist.status === 'match') {
-        // Si hay coincidencia, mostrar la imagen, nombre y artista
-        artistContainer.innerHTML = `
-            <div>
-                <button class="close-btn" onclick="closeWindow('artist-info')">X</button>
-                <img src="${artist.image_url}" alt="Portada del Álbum" style="width: 200px; height: 200px;">
-                <h2>Artista: ${artist.name}</h2>
-            </div>
-        `;
-    } else if (artist.status === 'no_match') {
-        // Si no hay coincidencia, mostrar mensaje
-        artistContainer.innerHTML = `
-            <div>
-                <button class="close-btn" onclick="closeWindow('artist-info')">X</button>
-                <h2>${artist.message}</h2>
-            </div>
-        `;
+  if (contentElement) {
+    if (data.status === 'match') {
+      // Actualiza el contenido del infowindow solo para el usuario correspondiente
+      contentElement.innerHTML += `
+        <div class="artist-container" style="margin-top: 10px;">
+          <p><b>Artista en comun :</b> ${data.name}</p>
+          <img src="${data.image_url}" alt="Imagen del álbum" style="width: 50px; height: 50px;">
+        </div>`;
+    } else {
+      // Si no hay coincidencias, muestra el mensaje de 'no_match'
+      contentElement.innerHTML += `
+        <div class="artist-container" style="margin-top: 10px;">
+          <p>${data.message}</p>
+        </div>`;
     }
+  }
 });
 
 function closeWindow(id) {
@@ -288,7 +290,7 @@ socket.on('new_user_location', function(location) {
     markers[location.userId] = marker;
 
     const contentString = 
-      `<div class="persona-${location.userId}" id="content" style="width: 150px; font-size: 12px;">
+      `<div class="persona-${location.userId}" id="content" style="width: 150px; font-size: 12px; border: 2px solid green; padding: 10px; border-radius: 5px;">
         <img id="corazon-${location.userId}" src="../static/images/corazon_vacio.png" alt="Corazón" style="position: absolute; top: 15px; left: 10px; width: 20px; height: 20px;cursor: pointer;" onclick="cambiarImagen(this, '${location.userId}', '${location.username}')">
         <div id="siteNotice"></div>
         <h1 id="firstHeading" class="firstHeading" style="font-size: 14px; margin-bottom: 5px;">Información del usuario</h1>
@@ -319,14 +321,14 @@ socket.on('new_user_location', function(location) {
 
         const cantanteBoton = document.getElementById(`button-cancion`);
         cantanteBoton.addEventListener('click', () => {
-          socket.emit('canciones_mas_escuchadas', location.userId);
+          socket.emit('canciones_mas_escuchadas', {'userId': location.userId});
             
 
         });
 
         const cancionBoton = document.getElementById(`button-cantante`);
         cancionBoton.addEventListener('click', () => {
-          socket.emit('cantante_en_comun', location.userId);
+          socket.emit('cantante_en_comun', {'userId':location.userId});
           
         });
 
@@ -401,16 +403,13 @@ socket.emit('load_chat_history', roomName);
 
 }
 
-       // Función para generar el nombre de la sala único basado en los dos usuarios
-       function generateRoomName(user1, user2) {
+// Función para generar el nombre de la sala único basado en los dos usuarios
+function generateRoomName(user1, user2) {
     return [user1, user2].sort().join('-'); // Asegura que el orden de los usuarios no importe
 }
 
 
 function sendMessage(roomName, userId) {
-  console.log("estoyentrando");
-  console.log(roomName);
-  console.log(userId);
     const messageInput = document.getElementById(`chat-input-${roomName}`);
     const message = messageInput.value;
 
@@ -559,13 +558,13 @@ socket.on('chat_history', function(data) {
     }
 });
 
-        socket.on('receive_user_id', function(userId) {
+socket.on('receive_user_id', function(userId) {
                 console.log('ID del usuario actual:', userId);
                 sessionStorage.setItem('user_id', userId); // Guardar el ID en el almacenamiento de sesión
         });
 
 
-    socket.on('remove_user_location', function(id){
+socket.on('remove_user_location', function(id){
 
       //Cuando se desconecte un usuario eliminarlo de todos los mapas 
       if (markers[id]) {
@@ -579,7 +578,7 @@ socket.on('chat_history', function(data) {
 
     });
 
-    function closeChat(roomName){
+function closeChat(roomName){
             const chatWindow = activeChats[roomName]
             if (chatWindow){
                 chatWindow.remove();
@@ -588,7 +587,7 @@ socket.on('chat_history', function(data) {
         }
 
 
-        socket.on('imprimir', function(data){
+socket.on('imprimir', function(data){
              imprimir(data);
 
 
@@ -598,7 +597,7 @@ function imprimir(data){
   console.log(data);
 }
 
-    function haversineDistance(lat1, lng1, lat2, lng2) {
+function haversineDistance(lat1, lng1, lat2, lng2) {
         const R = 6371000; // Radio de la Tierra en metros
         const toRadians = angle => (angle * Math.PI) / 180;
 
@@ -614,8 +613,8 @@ function imprimir(data){
         return R * c; // Distancia en metros
     }
     
-      // Función para manejar errores de geolocalización
-      function handleLocationError(browserHasGeolocation, pos) {
+// Función para manejar errores de geolocalización
+function handleLocationError(browserHasGeolocation, pos) {
         var infoWindow = new google.maps.InfoWindow({
           position: pos,
           content: browserHasGeolocation
@@ -624,14 +623,12 @@ function imprimir(data){
         });
         infoWindow.open(map);
       }
-      document.getElementById('toggle-chat-list').addEventListener('click', function() {
+      
+document.getElementById('toggle-chat-list').addEventListener('click', function() {
     const chatListContainer = document.getElementById('chat-list-container');
     chatListContainer.classList.toggle('visible');  // Mostrar o ocultar la lista de chats
     chatListContainer.classList.toggle('hidden');
 });
-
-
-
 
 document.getElementById('close-chat-list').addEventListener('click', function() {
     const chatListContainer = document.getElementById('chat-list-container');
@@ -657,26 +654,12 @@ function filtrarChats() {
         }
     });
 }
-
       
 socket.on('user_chats', function(data) {
     const chatList = document.getElementById('chat-list'); // Un contenedor en tu HTML donde mostrar los chats
     chatList.innerHTML = ''; // Limpiar la lista actual
 
-    data.rooms.forEach(function(roomName) {
-        const li = document.createElement('li');
-        li.textContent = `Chat Room: ${roomName}`;
-        li.classList.add('chat-room-item');
-        li.addEventListener('click', function() {
-            openChatFromHistory(roomName);
-        });
-
-        chatList.appendChild(li);
-    });
-});
-
-function openChatFromHistory(roomName) {
-    // Hacer una petición al servidor para obtener el user_id
+    // Primero, obtener el user_id actual del servidor
     fetch('/obtener_id', {
         method: 'POST',
         headers: {
@@ -685,42 +668,116 @@ function openChatFromHistory(roomName) {
     })
     .then(response => response.json())  // Interpretar la respuesta como JSON
     .then(currentUserId => {
-        console.log(currentUserId)  // currentUserId es el valor obtenido desde el servidor
+        console.log(currentUserId);  // currentUserId es el valor obtenido desde el servidor
+
+        // Iterar sobre todas las salas de chat devueltas
+        data.rooms.forEach(function(roomName) {
+            const [userA, userB] = roomName.split('-');
+            let otherUserId;
+
+            // Verificar cuál es el otro usuario en la sala
+            if (currentUserId === userA) {
+                otherUserId = userB;
+            } else {
+                otherUserId = userA;
+            }
+
+            // Ahora que tenemos el otherUserId, hacer la segunda llamada al servidor
+            fetch('/procesar_other_user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ otherUserId: otherUserId })  // Enviar el otherUserId al servidor
+            })
+            .then(response => response.json())  // Interpretar la respuesta como JSON
+            .then(data => {
+                const nombre = data ;  // Aquí puedes usar lo que devuelva el servidor como nombre
+                // Crear un elemento de lista para cada sala
+                const li = document.createElement('li');
+                li.textContent = `Chat Room: ${nombre}`;  // Mostrar el nombre del otro usuario
+                li.classList.add('chat-room-item');
+
+                // Añadir el evento para abrir la ventana de chat al hacer clic
+                li.addEventListener('click', function() {
+                    openChatFromHistory(roomName);
+                });
+
+                // Añadir la sala de chat a la lista
+                chatList.appendChild(li);
+            })
+            .catch(error => {
+                console.error('Error al procesar el otherUserId:', error);
+            });
+        });
+    })
+    .catch(error => {
+        console.error('Error al obtener el user_id:', error);
+    });
+});
+
+function openChatFromHistory(roomName) {
+    // Hacer una petición al servidor para obtener el user_id actual
+    fetch('/obtener_id', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())  // Interpretar la respuesta como JSON
+    .then(currentUserId => {
+        console.log(currentUserId);  // currentUserId es el valor obtenido desde el servidor
         const [userA, userB] = roomName.split('-');
         let otherUserId;
 
         // Verificar cuál es el otro usuario en la sala
         if (currentUserId === userA) {
-            otherUserId = userB;  // Si el usuario actual es userA, entonces userB es el otro usuario
+            otherUserId = userB;
         } else {
-            otherUserId = userA;  // Si el usuario actual es userB, entonces userA es el otro usuario
+            otherUserId = userA;
         }
 
-        // Si ya existe una ventana de chat abierta para esta sala, no la volvemos a abrir
-        if (activeChats[roomName]) {
-            return;
-        }
+        // Enviar el otherUserId al servidor y recibir un valor relacionado
+        fetch('/procesar_other_user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ otherUserId: otherUserId })  // Enviar el otherUserId al servidor
+        })
+        .then(response => response.json())  // Interpretar la respuesta como JSON
+        .then(data => {
+            const nombre = data; 
+            
+            // Si ya existe una ventana de chat abierta para esta sala, no la volvemos a abrir
+            if (activeChats[roomName]) {
+                return;
+            }
 
-        // Crear la ventana de chat
-        const chatWindow = document.createElement('div');
-        chatWindow.classList.add('chat-window');
-        chatWindow.innerHTML = 
-            `<div class="chat-header">
-                Sala de chat ${roomName}
-                <button class="close-chat-btn" onclick="closeChat('${roomName}')">&times;</button>
-            </div>
-            <div class="chat-messages" id="chat-messages-${roomName}"></div>
-            <input type="text" id="chat-input-${roomName}" placeholder="Escribe un mensaje..." />
-            <button onclick="sendMessage('${roomName}', '${otherUserId}')">Enviar</button>`;
+            // Crear la ventana de chat
+            const chatWindow = document.createElement('div');
+            chatWindow.classList.add('chat-window');
+            chatWindow.innerHTML = 
+                `<div class="chat-header">
+                    Sala de chat ${nombre}
+                    <button class="close-chat-btn" onclick="closeChat('${roomName}')">&times;</button>
+                </div>
+                <div class="chat-messages" id="chat-messages-${roomName}"></div>
+                <input type="text" id="chat-input-${roomName}" placeholder="Escribe un mensaje..." />
+                <button onclick="sendMessage('${roomName}', '${otherUserId}')">Enviar</button>`;
 
-        document.body.appendChild(chatWindow);
-        activeChats[roomName] = chatWindow;
+            document.body.appendChild(chatWindow);
+            activeChats[roomName] = chatWindow;
 
-        // Unirse a la sala de chat
-        socket.emit('join_room', { room_name: roomName, user_id: currentUserId });
+            // Unirse a la sala de chat
+            socket.emit('join_room', { room_name: roomName, user_id: currentUserId });
 
-        // Cargar los mensajes guardados desde la base de datos
-        socket.emit('load_chat_history', roomName);
+            // Cargar los mensajes guardados desde la base de datos
+            socket.emit('load_chat_history', roomName);
+        })
+        .catch(error => {
+            console.error('Error al procesar el otherUserId:', error);
+        });
     })
     .catch(error => {
         console.error('Error al obtener el user_id:', error);
@@ -728,7 +785,8 @@ function openChatFromHistory(roomName) {
 }
 
 
-      document.addEventListener('DOMContentLoaded', function() {
+
+document.addEventListener('DOMContentLoaded', function() {
     // Pedir los chats previos del usuario al servidor
     socket.emit('load_user_chats');
     const script = document.createElement('script');
@@ -736,8 +794,7 @@ function openChatFromHistory(roomName) {
   document.head.appendChild(script);
 });
      
-    </script>
-    
-    
+ </script>
+        
   </body>
 </html>

@@ -15,10 +15,13 @@ from spotipy.oauth2 import SpotifyOAuth
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from threading import Thread 
 from flask_cors import CORS
+from config import Config
 import time
 
 app = Flask(__name__)
 # Configuración de la clave secreta
+
+
 app.secret_key = 'mi_clave_secreta_super_segura'
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
@@ -53,9 +56,10 @@ db_config = {
     'user': 'mai',
     'password': 'calavera',
     'host': 'db',
-    'database': 'SpotifusNueva',
+    'database': 'Spotifind',
     'port': '3306'
 }
+
 
 def insertar_usuarios(num_users):
     fake = Faker()
@@ -63,9 +67,9 @@ def insertar_usuarios(num_users):
         cursor = conn.cursor()
         for _ in range(int(num_users)):
             nombre = fake.name()
-            contrasena = fake.password()
-            query = "INSERT INTO Usuarios(nombre, contrasena) VALUES (%s, %s)"
-            cursor.execute(query, (nombre, contrasena))
+            #contrasena = fake.password()
+            query = "INSERT INTO Usuarios(nombre) VALUES (%s)"
+            cursor.execute(query, (nombre,))
         conn.commit()
 
 def get_usuarios():
@@ -79,7 +83,7 @@ def get_usuarios():
 # Funciones para manipular usuarios en la base de datos
 
 ## insertar un nuevo usuario en la base de datos
-def insertar_usuario(nombre, contrasena, imagen, display_name):
+def insertar_usuario(nombre,imagen, display_name):
     with mysql.connector.connect(**db_config) as conn:
         cursor = conn.cursor()
         # Verificar si el usuario ya existe
@@ -89,8 +93,8 @@ def insertar_usuario(nombre, contrasena, imagen, display_name):
         # Si el usuario no existe, insertarlo
         if count == 0:
             if (imagen == ""):
-                query = "INSERT INTO Usuarios(nombre, contrasena, display_name) VALUES (%s, %s, %s)"
-                cursor.execute(query, (nombre, contrasena, display_name))
+                query = "INSERT INTO Usuarios(nombre,display_name) VALUES (%s, %s)"
+                cursor.execute(query, (nombre,display_name))
                 conn.commit()
 
 ##eliminar los usuarios que están añadidos en la base de datos
@@ -287,6 +291,13 @@ def obtener_bloqueos(user_id):
         bloqueados = cursor.fetchall()
     return bloqueados
 
+def obtener_bloqueaciones(): 
+    with mysql.connector.connect(**db_config) as conn:
+        cursor = conn.cursor()
+        query = "SELECT bloqueado, COUNT(*) AS numero_bloqueos FROM Bloqueos GROUP BY bloqueado ORDER BY numero_bloqueos DESC "
+        cursor.execute(query)
+        result = cursor.fetchall()
+    return result
 def esta_bloqueado(bloqueador, bloqueado):
     with mysql.connector.connect(**db_config) as conn:
         cursor = conn.cursor()
@@ -296,6 +307,21 @@ def esta_bloqueado(bloqueador, bloqueado):
         
     # Si el resultado es mayor que 0, significa que el usuario está bloqueado
     return result[0] > 0
+
+def get_administradores():
+    with mysql.connector.connect(**db_config) as conn:
+        cursor = conn.cursor()
+        query = "SELECT nombre FROM Administradores"
+        cursor.execute(query)
+        result = cursor.fetchall()
+    return result
+
+def anadir_administrador(nombre, contrasena):
+    with mysql.connector.connect(**db_config) as conn:
+        cursor = conn.cursor()
+        query = "INSERT INTO Administradores (nombre, contrasena) VALUES (%s, %s)"
+        cursor.execute(query, (nombre, contrasena))
+        conn.commit()
 
 def eliminar_bloqueo(bloqueador, bloqueado):
     with mysql.connector.connect(**db_config) as conn:
@@ -459,7 +485,7 @@ def profile():
     
     
     # Guardar información del usuario
-    insertar_usuario(response_data2['id'], "contraseña", "", response_data2['display_name'])
+    insertar_usuario(response_data2['id'],"", response_data2['display_name'])
     
     unico = response_data2['id']
     tokens[unico] = session.get('access_token')
@@ -574,13 +600,17 @@ def cambiar_usuario():
 def bloquear():
     rooms = obtener_rooms(session.get('id'))
     user_id = session.get('id')
+    bloqueos = obtener_bloqueos(user_id)
     amigos = set()
     for room in rooms: 
         cadena = room[0]
         partes = cadena.split('-')
         amigos.update({amigo for amigo in partes if amigo != user_id})
 
-    amigos = list(amigos)
+
+    amigos_filtrados = [amigo for amigo in amigos if amigo not in bloqueos]
+    amigos = list(amigos_filtrados)
+
 
     return render_template('bloquear.html', rooms=amigos)
 
@@ -605,6 +635,12 @@ def bloquear_usuario():
     bloqueado_id = request.json['bloqueado_id']
     insertar_bloqueo(session.get('id'), bloqueado_id)
     return jsonify({"message": f"Usuario {bloqueado_id} bloqueado correctamente."})
+
+@app.route('/bloqueados')
+def bloqueados():
+    bloqueos = obtener_bloqueaciones()
+    return render_template('bloqueados.html', lista_elementos=bloqueos)
+    
    
 @app.route('/desbloquear_usuario', methods=['POST'])
 def desbloquear_usuario():
@@ -613,6 +649,20 @@ def desbloquear_usuario():
     eliminar_bloqueo(session.get('id'), bloqueado_id)
     return jsonify({"message": f"Usuario {bloqueado_id} desbloqueado correctamente."})
 
+@app.route('/insertar_admin', methods=['POST'])
+def insertar_administrador():
+    nombre = request.json['username']
+    contrasena = request.json['password']
+    anadir_administrador(nombre, contrasena)    
+    return jsonify({"message": f"Administrador añadido correctamente."})
+
+
+@app.route('/administradores.html')
+def administradores():
+    administradores = get_administradores()
+    lista_solo_primero = [admin[0] for admin in administradores]  
+    
+    return render_template('administradores.html', lista=lista_solo_primero)
 
 
 @app.route('/menu')
@@ -629,6 +679,13 @@ def get_username():
 def obtener_id():
     user_id = session.get('id')
     return jsonify(user_id)
+
+@app.route('/procesar_other_user', methods=['POST'])
+def procesar_other_user():
+    otherUserId = request.json.get('otherUserId')
+    nombre = obtener_nombre_usuario(otherUserId)
+    return jsonify(nombre)
+
 
 @app.route('/procesar_dato', methods=['POST'])
 def procesar_dato():
@@ -792,20 +849,22 @@ def handle_canciones_mas_escuchadas(data):
         
         if guardada is None:
            ## deberia comprobar si alguna de las canciones guardadas coincide con alguna de las canciones más oidas
-           emit('track', {'status': 'no_match', 'message': 'No tienen ninguna canción en común.'})
+           emit('track', {'status': 'no_match', 'message': 'No tienen ninguna canción en común.', 'userId': data['userId']}, to=request.sid)
         else:
             emit('track', {
             'status': 'match',
             'name': guardada['name'],
             'artist': guardada['artist'],
-            'image_url': guardada['image_url']})
+            'image_url': guardada['image_url'],
+            'userId': data['userId']}, to=request.sid)
    
     else:
         emit('track', {
             'status': 'match',
             'name': track['name'],
             'artist': track['artist'],
-            'image_url': track['image_url']})
+            'image_url': track['image_url'],
+            'userId': data['userId']}, to=request.sid)
     
     
     #emit('canciones', {'access_token':lista1, 'otro_access_token': lista2})   
@@ -829,19 +888,19 @@ def handle_cantante_en_comun(data):
 
     if artist is None:
          ## mirar en los cantantes que siguen a ver si hay alguno en comun 
-         emit('track', {'status': 'no_match', 'message': 'No tienen ningun cantante en común.'})
+         emit('artist', {'status': 'no_match', 'message': 'No tienen ningun cantante en común.', 'userId': data['userId']}, to=request.sid)
     else:
         emit('artist', {
             'status': 'match',
             'name': artist['name'],
-            'image_url': artist['image_url']})
+            'image_url': artist['image_url'], 'userId': data['userId']}, to=request.sid)
 
 
 def calcularArtista(quien, tiempo, data):
     
     if quien == "destinatario":
 
-        access_token = tokens.get(data)
+        access_token = tokens.get(data['userId'])
 
     else:
         access_token = session.get('access_token')
@@ -880,7 +939,7 @@ def calcularArtista(quien, tiempo, data):
 
 def comprobarCancionesGuardadas(data):
     if data:
-      access_token = tokens.get(data)
+      access_token = tokens.get(data['userId'])
     else:
       access_token = session.get('access_token')
 
@@ -931,7 +990,7 @@ def calcularLista(quien, tiempo, data):
     
     if quien == "destinatario":
 
-        access_token = tokens.get(data)
+        access_token = tokens.get(data['userId'])
 
     else:
         access_token = session.get('access_token')

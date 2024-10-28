@@ -30,6 +30,11 @@ function ejecutarAccion(accion) {
 
     }
 
-    ocultarMenu();
+    else if (accion == "Personalizar el personaje"){
+
+        window.location.href=`/personajes`;
+    }
+
+    //ocultarMenu();
 }
 

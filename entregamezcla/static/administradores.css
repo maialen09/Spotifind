@@ -1,0 +1,25 @@
+#menu-opciones {
+    display: none; /* Oculto por defecto */
+    position: absolute; /* Flotante sobre la página */
+    background-color: #fff;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Sombra para el menú */
+    border: 1px solid #ccc;
+    z-index: 1000; /* Asegura que el menú esté encima de otros elementos */
+}
+
+/* Estilo para los botones del menú */
+#menu-opciones button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    background-color: #f9f9f9;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+}
+
+/* Efecto hover para los botones del menú */
+#menu-opciones button:hover {
+    background-color: #eee;
+}

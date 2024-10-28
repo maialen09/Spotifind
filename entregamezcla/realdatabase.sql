@@ -1,10 +1,9 @@
-CREATE DATABASE IF NOT EXISTS SpotifusNueva;
+CREATE DATABASE IF NOT EXISTS Spotifind;
 
-USE SpotifusNueva;
+USE Spotifind;
 
 CREATE TABLE IF NOT EXISTS Usuarios (
     nombre VARCHAR(50) NOT NULL,
-    contrasena VARCHAR(100) NOT NULL,
     display_name VARCHAR(100),
     PRIMARY KEY (nombre), 
     ruta_imagen LONGBLOB 
@@ -20,20 +19,20 @@ CREATE TABLE IF NOT EXISTS mensajes (
 );
 
 CREATE TABLE IF NOT EXISTS Opciones (
-    user_id VARCHAR(200) PRIMARY KEY,
-    cuerpo_categoria VARCHAR(50),
-    ojos_categoria VARCHAR(50),
-    ojos_color VARCHAR(50),
-    camiseta_categoria VARCHAR(50),
-    camiseta_color VARCHAR(50),
-    boca VARCHAR(50),
-    gafas VARCHAR(50),
-    pelo_categoria VARCHAR(50),
-    pelo_color VARCHAR(50),
-    pantalones_categoria VARCHAR(50),
-    pantalones_color VARCHAR(50),
-    zapatillas VARCHAR(50),
-    accesorio VARCHAR(50)
+        user_id VARCHAR(200) PRIMARY KEY,
+        cuerpo_categoria VARCHAR(50),
+        ojos_categoria VARCHAR(50),
+        ojos_color VARCHAR(50),
+        camiseta_categoria VARCHAR(50),
+        camiseta_color VARCHAR(50),
+        boca VARCHAR(50),
+        gafas VARCHAR(50),
+        pelo_categoria VARCHAR(50),
+        pelo_color VARCHAR(50),
+        pantalones_categoria VARCHAR(50),
+        pantalones_color VARCHAR(50),
+        zapatillas VARCHAR(50),
+        accesorio VARCHAR(50)
 );
 
 CREATE TABLE IF NOT EXISTS Bloqueos (
